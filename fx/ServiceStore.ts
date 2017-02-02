@@ -1,5 +1,5 @@
 import {AppStore} from "./AppStore";
-import {ActionScope} from "./ActionScope";
+import {TransactionScope} from "./TransactionScope";
 import {resolvePath} from "./helpers";
 
 export interface ServiceStoreMetadata<StateT> {
@@ -8,58 +8,50 @@ export interface ServiceStoreMetadata<StateT> {
 }
 
 export class ServiceStore<StateT> {
-    private _appStore: AppStore;
-    private _state: StateT;
-    private _listeners: any[];
-    private _metadata: ServiceStoreMetadata<StateT>;
+    private appStore: AppStore;
+    private state: StateT;
+    private listeners: any[];
+    private metadata: ServiceStoreMetadata<StateT>;
 
     constructor(appStore: AppStore, metadata: ServiceStoreMetadata<StateT>) {
-        appStore.registerServiceStore(this, metadata);
+        appStore.registerStore(this, metadata);
 
-        this._appStore = appStore;
-        this._metadata = metadata;
-        this._listeners = [];
-        this._state = resolvePath(appStore.state, metadata.path);
+        this.appStore = appStore;
+        this.metadata = metadata;
+        this.listeners = [];
+        this.state = resolvePath(appStore.getState(), metadata.path);
 
         appStore.subscribe(appState => {
-            const oldState = this._state;
-            this._state = resolvePath(appState, this.path);
-            if(oldState != this._state) {
+            const oldState = this.state;
+            this.state = resolvePath(appState, this.metadata.path);
+            if(oldState != this.state) {
                 this.emit();
             }
         });
     }
 
     subscribe(listener: (state: StateT)=>void) {
-        this._listeners.push(listener);
+        this.listeners.push(listener);
 
-        listener(this._state);
+        listener(this.state);
     }
 
-    commit(changes: any): Promise<StateT> {
-        return Promise.resolve(<StateT>ActionScope.current().commit(changes));
+    getAppStore(): AppStore {
+        return this.appStore;
     }
 
-    get appStore(): AppStore {
-        return this._appStore;
+    getMetadata(): ServiceStoreMetadata<StateT> {
+        return this.metadata;
     }
 
-    get state(): StateT {
-        const tranScope = ActionScope.current();
-        return <StateT>tranScope.state;
-    }
-
-    get path(): string {
-        return this._metadata.path;
-    }
-
-    get initialState(): StateT {
-        return this._metadata.initialState;
+    getState(): StateT {
+        const tranScope = TransactionScope.current();
+        return <StateT>tranScope.getState();
     }
 
     private emit() {
-        for(let l of this._listeners) {
-            l(this._state);
+        for(let l of this.listeners) {
+            l(this.state);
         }
     }
 }

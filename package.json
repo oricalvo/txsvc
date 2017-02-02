@@ -25,12 +25,13 @@
     "redux": "^3.6.0",
     "reflect-metadata": "^0.1.8",
     "rxjs": "5.0.0-beta.12",
-    "systemjs-server": "^1.1.32",
     "zone.js": "^0.6.25"
   },
   "devDependencies": {
     "@types/core-js": "^0.9.34",
     "@types/node": "^6.0.45",
-    "typescript": "^2.0.3"
+    "node-sass": "^4.3.0",
+    "typescript": "^2.0.3",
+    "systemjs-server": "^1.1.32"
   }
 }

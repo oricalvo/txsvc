@@ -2,7 +2,7 @@ import {MetroState, MetroService} from "./metro.service";
 import {LocaleState, LocaleService} from "./locale.service";
 import {Injectable} from "@angular/core";
 import {ServiceStore} from "../../fx/ServiceStore";
-import {Action} from "../../fx/Action";
+import {Transaction} from "../../fx/decorators";
 import {appStore} from "./appStore";
 
 export interface AppState {
@@ -29,15 +29,15 @@ export class RootService {
         this.store.subscribe(listener);
     }
 
-    @Action()
+    @Transaction()
     async changeMetro(metroId: number): Promise<AppState> {
         const metroState = await this.metroService.change(metroId);
         const localeState = await this.localeService.change(metroState.metro.defaultLocale);
 
-        return this.store.commit({
+        return {
             metro: metroState,
             locale: localeState,
             id: 123,
-        });
+        };
     }
 }

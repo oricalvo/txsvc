@@ -1,6 +1,6 @@
 import {ServiceStore} from "../../fx/ServiceStore";
 import {Injectable} from "@angular/core";
-import {Action} from "../../fx/Action";
+import {Transaction} from "../../fx/decorators";
 import {appStore} from "./appStore";
 
 export interface LocaleState {
@@ -19,15 +19,15 @@ export class LocaleService {
     constructor() {
     }
 
-    @Action()
+    @Transaction()
     change(localeId: string): Promise<LocaleState> {
-        return this.store.commit({
+        return Promise.resolve({
             localeId
         });
     }
 
     get initialState() {
-        return this.store.initialState;
+        return this.store.getMetadata().initialState;
     }
 
     subscribe(listener: (state: LocaleState)=>void) {

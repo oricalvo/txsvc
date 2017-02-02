@@ -1,24 +1,19 @@
-import {ActionScope} from "./ActionScope";
+import {TransactionScope} from "./TransactionScope";
 import {ServiceStore} from "./ServiceStore";
 
-export function Action() {
+export function Transaction() {
     return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
         const method = descriptor.value;
 
-        descriptor.value = function() {
+        descriptor.value = function(...args) {
             const service = this;
             const serviceStore: ServiceStore<any> = service.store;
 
             if(!serviceStore) {
-                throw new Error("No store for service instance");
+                throw new Error("No store was found for service instance");
             }
 
-            const args = [];
-            for(var i=0; i<arguments.length; i++) {
-                args.push(arguments[i]);
-            }
-
-            return ActionScope.require(serviceStore.appStore, serviceStore.path, function() {
+            return TransactionScope.require(serviceStore, function() {
                 return method.apply(service, args);
             });
 

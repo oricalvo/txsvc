@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
-import {ServiceStore} from "../../fx/servicestore";
-import {Action} from "../../fx/Action";
+import {ServiceStore} from "../../fx/ServiceStore";
+import {Transaction} from "../../fx/decorators";
 import {appStore} from "./appStore";
 
 export interface Metro {
@@ -32,18 +32,18 @@ export class MetroService {
         });
     }
 
-    @Action()
+    @Transaction()
     async change(metroId: number): Promise<MetroState> {
         const metro = await this.getMetro(metroId);
 
-        return this.store.commit({
+        return {
             metroId,
             metro
-        });
+        };
     }
 
     get initialState() {
-        return this.store.initialState;
+        return this.store.getMetadata().initialState;
     }
 
     private getMetro(metroId: number): Promise<Metro> {
