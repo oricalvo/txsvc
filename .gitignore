@@ -1,10 +1,10 @@
 node_modules
-app/**/*.js
-app/**/*.js.map
-fx/**/*.js
-fx/**/*.js.map
-app/**/*.css
-app/**/*.css.map
+samples/**/*.js
+samples/**/*.js.map
+src/**/*.js
+src/**/*.js.map
+samples/**/*.css
+samples/**/*.css.map
 .idea
 npm-debug.log.859828415
 yarn-error.log
