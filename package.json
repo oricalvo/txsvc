@@ -1,9 +1,10 @@
 {
   "name": "txsvc",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "scripts": {
     "start": "node_modules/.bin/sjs",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "patch": "node build/main.js patch"
   },
   "licenses": [
     {
@@ -17,7 +18,7 @@
   "devDependencies": {
     "@types/core-js": "^0.9.35",
     "@types/node": "^7.0.4",
-    "build-utils": "^1.0.16",
+    "build-utils": "^1.0.18",
     "typescript": "^2.1.5"
   }
 }

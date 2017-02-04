@@ -2,6 +2,7 @@ import {AppStore} from "./AppStore";
 import {resolvePath} from "./helpers";
 import {TransactionState} from "./TransactionState";
 import {ServiceStore, ServiceStoreMetadata} from "./ServiceStore";
+import "zone.js/dist/zone.js";
 
 export class TransactionScope<StateT> {
     private store: ServiceStore<StateT>;

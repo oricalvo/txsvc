@@ -1,9 +1,10 @@
 import * as path from "path";
 import * as cli from "build-utils/cli";
-import {copyGlob, copyFile, exec} from "build-utils";
+import {copyGlob, copyFile} from "build-utils/fs";
+import {exec} from "build-utils/process";
 
 async function patch() {
-    await exec(path.resolve("node_modules/.bin/tsc") + " -p ./build");
+    await exec(path.resolve("node_modules/.bin/tsc") + " -p ./build/tsconfig.build.json");
     await copyGlob("./build_tmp/*.js", "./package");
     await copyGlob("./build_tmp/*.d.ts", "./package");
     await copyFile("./package.json", "package/package.json");
