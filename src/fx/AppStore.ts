@@ -19,6 +19,9 @@ export class AppStore {
         for(let store of stores) {
             this.registerStore(store);
         }
+
+        logger.log("Initial appStore");
+        logger.log(this.state);
     }
 
     getState() {
