@@ -1,5 +1,8 @@
-import {replace, setNoClone} from "./helpers";
+import {replace, setNoClone, ROOT, clean} from "./helpers";
 import {ServiceStore, ServiceStoreMetadata} from "./ServiceStore";
+import {createLogger} from "./logger";
+
+const logger = createLogger("AppStore");
 
 export class AppStore {
     private listeners: any[];
@@ -10,6 +13,12 @@ export class AppStore {
         this.state = {};
         this.listeners = [];
         this.stores = [];
+    }
+
+    init(stores: ServiceStore<any>[]) {
+        for(let store of stores) {
+            this.registerStore(store);
+        }
     }
 
     getState() {
@@ -27,13 +36,19 @@ export class AppStore {
         }
     }
 
-    commit(path, oldValue, value) {
-        const newState = replace(this.state, path, oldValue, value);
+    commit(oldState, newState) {
         if(newState == this.state) {
             return;
         }
 
+        if(oldState != this.state) {
+            throw new Error("Concurrency error");
+        }
+
+        clean(newState);
         this.state = newState;
+
+        logger.log("State changed", oldState, " ==> ", newState);
 
         for(let l of this.listeners) {
             l(this.state);
@@ -42,18 +57,27 @@ export class AppStore {
         return this.state;
     }
 
-    registerStore<StateT>(service: ServiceStore<StateT>, metadata: ServiceStoreMetadata<StateT>) {
+    registerStore<StateT>(store: ServiceStore<StateT>) {
+        const metadata = store.getMetadata();
         const conflict: ServiceStore<any> = this.findConflictingPath(metadata.path);
         if(conflict) {
             throw new Error("Service with path: " + metadata.path + " conflicts with existing service with path: " + conflict.getMetadata().path);
         }
 
-        this.stores.push(service);
+        this.stores.push(store);
+
+        if(store.getMetadata().path == ROOT) {
+            return;
+        }
 
         setNoClone(this.state, metadata.path, metadata.initialState);
     }
 
     private findConflictingPath(path: string): ServiceStore<any> {
+        if(path == ROOT) {
+            return this.stores.find(s=>s.getMetadata().path == ROOT);
+        }
+
         for(let store of this.stores) {
             if(path.indexOf(store.getMetadata().path)==0) {
                 return store;

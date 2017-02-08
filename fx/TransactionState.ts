@@ -2,17 +2,26 @@ import {AppStore} from "./AppStore";
 import {set, resolvePath} from "./helpers";
 
 export class TransactionState {
-    private appState: any;
+    private oldState: any;
+    private newState: any;
 
     constructor(appState: any) {
-        this.appState = appState;
+        this.oldState = this.newState = appState;
+    }
+
+    get() {
+        return this.newState;
+    }
+
+    getOld() {
+        return this.oldState;
     }
 
     set(path: string, changes: any) {
-        this.appState = set(this.appState, path, changes);
+        this.newState = set(this.newState, path, changes);
     }
 
-    getAppState() {
-        return this.appState;
-    }
+    // getAppState() {
+    //     return this.appState;
+    // }
 }
