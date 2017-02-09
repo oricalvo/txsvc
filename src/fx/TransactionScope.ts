@@ -1,48 +1,67 @@
 import {AppStore} from "./AppStore";
-import {resolvePath} from "./helpers";
+import {resolvePath, set, promisify} from "./helpers";
 import {TransactionState} from "./TransactionState";
 import {ServiceStore, ServiceStoreMetadata} from "./ServiceStore";
 import "zone.js";
 
-export class TransactionScope<StateT> {
+export class TransactionScope {
     private appStore: AppStore;
-    private state: TransactionState;
-    private parent: TransactionScope<StateT>
+    private oldState: any;
+    private newState: any;
 
-    constructor(appStore: AppStore,
-                parent: TransactionScope<StateT>) {
+    constructor(appStore: AppStore) {
         this.appStore = appStore;
-        var appState = appStore.getState();
-        this.state = (parent ? parent.state : new TransactionState(appState));
-        this.parent = parent;
+        this.oldState = this.newState = appStore.getState();
     }
 
-    getState(): TransactionState {
-        return this.state;
+    public update(path: string, changes: any) {
+        this.newState = set(this.newState, path, changes);
     }
 
-    // getState(): StateT {
-    //     const state = resolvePath(this.state.getAppState(), this.metadata.path);
-    //     return state;
-    // }
-    //
-    // setState(path: string, changes: Partial<StateT>): void {
-    //     this.state.set(path, changes);
-    // }
-
-    commit() {
-        const tranState = this.getState();
-        return this.appStore.commit(tranState.getOld(), tranState.get());
+    public getNewState() {
+        return this.newState;
     }
 
-    static current<StateT>(): TransactionScope<StateT> {
-        let tran: TransactionScope<StateT> = Zone.current.get("tran");
+    public getOldState() {
+        return this.oldState;
+    }
+
+    private commit() {
+        this.appStore.commit(this.oldState, this.newState);
+    }
+
+    static current(): TransactionScope {
+        let tran: TransactionScope = Zone.current.get("tran");
         return tran;
     }
 
-    static require<StateT>(store: ServiceStore<StateT>, func) {
-        const parent: TransactionScope<StateT> = <any>TransactionScope.current();
-        const tran: TransactionScope<StateT> = new TransactionScope(store.getAppStore(), parent);
+    static require<StateT>(store: ServiceStore<StateT>, action) {
+        function runAction(func, commit) {
+            return promisify(func()).then(changes => {
+                tran.update(store.getMetadata().path, changes);
+
+                if(commit) {
+                    tran.commit();
+                }
+
+                return changes;
+            });
+        }
+
+        let tran: TransactionScope = TransactionScope.current();
+        if(tran) {
+            //
+            //  This is nested transaction
+            //  Commit changes to transaction state only (not app state)
+            //
+            return runAction(action, false);
+        }
+
+        //
+        //  This is a root transaction
+        //  When completed need to commit to the appStore
+        //
+        tran = new TransactionScope(store.getAppStore());
 
         const spec: ZoneSpec = {
             name: "tran",
@@ -52,22 +71,8 @@ export class TransactionScope<StateT> {
         };
 
         const zone = Zone.current.fork(spec);
-
-        return zone.run(function() {
-            const retVal = func();
-            if(!retVal.then) {
-                throw new Error("A method decorated with @Transaction must return a promise object");
-            }
-
-            return retVal.then(changes => {
-                tran.getState().set(store.getMetadata().path, changes);
-
-                if(!parent) {
-                    tran.commit();
-                }
-
-                return changes;
-            });
+        return zone.run(function () {
+            return runAction(action, true);
         });
     }
 }

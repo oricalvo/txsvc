@@ -1,5 +1,7 @@
 export const ROOT = "/";
 
+const $$NEW = "__txsvc:new";
+
 export function set(obj, path, changes) {
     let objAtPath = resolvePath(obj, path);
 
@@ -48,6 +50,7 @@ function internalClonePath(root, parts, index, state) {
 
     const field = parts[index];
     let res = assign(root, {
+        [$$NEW]: true,
         [field]: internalClonePath(root[field], parts, index+1, state)
     });
 
@@ -102,15 +105,15 @@ export function merge(obj, changes) {
 }
 
 export function clone(obj) {
-    if(obj && obj.$$new) {
+    if(obj && obj[$$NEW]) {
         return obj;
     }
 
-    return Object.assign({}, obj, {$$new: true});
+    return Object.assign({}, obj, {[$$NEW]: true});
 }
 
 function assign(obj, changes) {
-    if (obj.$$new) {
+    if (obj[$$NEW]) {
         Object.assign(obj, changes);
         return obj;
     }
@@ -128,12 +131,12 @@ function assign(obj, changes) {
     }
 
     const res = Object.assign({}, obj, changes);
-    res.$$new = true;
+    res[$$NEW] = true;
     return res;
 }
 
 export function clean(state) {
-    delete state["$$new"];
+    delete state[$$NEW];
 
     for(let field in state) {
         let obj = state[field];
@@ -199,4 +202,12 @@ export function P3
     >
 (obj: T, key1: K1, key2: K2, key3: K3) {
     return P1(P1(P1(obj, key1), key2), key3);
+}
+
+export function promisify(value) {
+    if(value.then) {
+        return value;
+    }
+
+    return Promise.resolve(value);
 }

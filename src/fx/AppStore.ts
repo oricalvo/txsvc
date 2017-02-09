@@ -4,13 +4,22 @@ import {createLogger} from "./logger";
 
 const logger = createLogger("AppStore");
 
+export interface StoreListener<StateT> {
+    (newState: StateT, oldState: StateT): void;
+}
+
+//
+//  Holds application state and allow subscribing to changes
+//  Each ServiceStore register itself to it
+//  Commit request is delegated from the ServiceStore to this appStore
+//
 export class AppStore {
-    private listeners: any[];
-    private state: any;
+    private listeners: StoreListener<any>[];
+    private appState: any;
     private stores: ServiceStore<any>[];
 
     constructor() {
-        this.state = {};
+        this.appState = {};
         this.listeners = [];
         this.stores = [];
     }
@@ -20,19 +29,18 @@ export class AppStore {
             this.registerStore(store);
         }
 
-        logger.log("Initial appStore");
-        logger.log(this.state);
+        logger.log("Initial appStore", this.appState);
     }
 
     getState() {
-        return this.state;
+        return this.appState;
     }
 
-    subscribe(listener: (state)=>void) {
+    subscribe(listener: (newState, oldState)=>void) {
         this.listeners.push(listener);
     }
 
-    unsubscribe(listener: (state)=>void) {
+    unsubscribe(listener: (newState, oldState)=>void) {
         const index = this.listeners.findIndex(l => l == listener);
         if(index != -1) {
             this.listeners.splice(index, 1);
@@ -40,27 +48,36 @@ export class AppStore {
     }
 
     commit(oldState, newState) {
-        if(newState == this.state) {
+        if(newState == this.appState) {
             return;
         }
 
-        if(oldState != this.state) {
+        if(oldState != this.appState) {
             throw new Error("Concurrency error");
         }
 
+        logger.log("Changing state", oldState, " ==> ", newState);
+
         clean(newState);
-        this.state = newState;
+        this.appState = newState;
 
-        logger.log("State changed", oldState, " ==> ", newState);
+        this.emit(oldState, newState);
 
-        for(let l of this.listeners) {
-            l(this.state);
-        }
-
-        return this.state;
+        return this.appState;
     }
 
-    registerStore<StateT>(store: ServiceStore<StateT>) {
+    private emit(oldState, newState) {
+        for(let l of this.listeners) {
+            try {
+                l(this.appState, oldState);
+            }
+            catch(err) {
+                logger.error("Ignoring error during AppStore change event", err);
+            }
+        }
+    }
+
+    private registerStore<StateT>(store: ServiceStore<StateT>) {
         const metadata = store.getMetadata();
         const conflict: ServiceStore<any> = this.findConflictingPath(metadata.path);
         if(conflict) {
@@ -73,7 +90,7 @@ export class AppStore {
             return;
         }
 
-        setNoClone(this.state, metadata.path, metadata.initialState);
+        setNoClone(this.appState, metadata.path, metadata.initialState);
     }
 
     private findConflictingPath(path: string): ServiceStore<any> {

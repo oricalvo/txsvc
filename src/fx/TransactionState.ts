@@ -1,25 +1,33 @@
-import {AppStore} from "./AppStore";
 import {set, resolvePath} from "./helpers";
 
+//
+//  Holds the most updated application state and the original application state
+//  A ServiceStore uses this class to update application state
+//
 export class TransactionState {
-    private oldState: any;
-    private newState: any;
+    private originalState: any;
+    private currentState: any;
 
     constructor(appState: any) {
-        this.oldState = this.newState = appState;
+        this.originalState = this.currentState = appState;
     }
 
-    get() {
-        return this.newState;
-    }
-
-    getOld() {
-        return this.oldState;
+    get(path: string) {
+        return resolvePath(this.currentState, path);
     }
 
     set(path: string, changes: any) {
-        this.newState = set(this.newState, path, changes);
+        this.currentState = set(this.currentState, path, changes);
     }
+
+    getCurrent() {
+        return this.currentState;
+    }
+
+    getOriginal() {
+        return this.originalState;
+    }
+
 
     // getAppState() {
     //     return this.appState;

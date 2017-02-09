@@ -6,5 +6,9 @@
     "sourceMap": true,
     "removeComments": false,
     "noImplicitAny": false
-  }
+  },
+  "files": [
+    "fx/index.ts",
+    "fx/TrackableState.ts"
+  ]
 }

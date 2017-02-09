@@ -4,7 +4,8 @@
   "scripts": {
     "start": "node_modules/.bin/sjs",
     "tsc": "tsc",
-    "patch": "node build/main.js patch"
+    "patch": "node build/main.js patch",
+    "pack": "node build/main.js pack"
   },
   "licenses": [
     {

@@ -1,20 +1,18 @@
-import {AppStore} from "./AppStore";
+import {AppStore, StoreListener} from "./AppStore";
 import {TransactionScope} from "./TransactionScope";
 import {resolvePath} from "./helpers";
 import {P1, P2} from "./helpers";
+import {createLogger} from "./logger";
+
+const logger = createLogger("ServiceStore");
 
 export interface ServiceStoreMetadata<StateT> {
     path: string,
     initialState: StateT;
 }
 
-interface StoreListener<StateT> {
-    (newState: StateT, oldState: StateT): void;
-}
-
 export class ServiceStore<StateT> {
     private appStore: AppStore;
-    private state: StateT;
     private listeners: StoreListener<StateT>[];
     private metadata: ServiceStoreMetadata<StateT>;
 
@@ -22,13 +20,12 @@ export class ServiceStore<StateT> {
         this.appStore = appStore;
         this.metadata = metadata;
         this.listeners = [];
-        this.state = resolvePath(appStore.getState(), metadata.path);
 
-        appStore.subscribe(appState => {
-            const oldState = this.state;
-            this.state = resolvePath(appState, this.metadata.path);
-            if(oldState != this.state) {
-                this.emit(this.state, oldState);
+        appStore.subscribe((newAppState, oldAppState) => {
+            const newState = resolvePath(newAppState, this.metadata.path);
+            const oldState = resolvePath(oldAppState, this.metadata.path);
+            if(oldState != newState) {
+                this.emit(newState, oldState);
             }
         });
     }
@@ -36,7 +33,8 @@ export class ServiceStore<StateT> {
     subscribe(listener: (newState: StateT, oldState: StateT)=>void) {
         this.listeners.push(listener);
 
-        listener(this.state, this.state);
+        const state = resolvePath(this.appStore.getState(), this.metadata.path);
+        listener(state, state);
     }
 
     subscribe1<K1 extends keyof StateT>(key1: K1, listener: (newState: StateT[K1], oldState: StateT[K1])=>void) {
@@ -69,28 +67,31 @@ export class ServiceStore<StateT> {
 
     getState(): StateT {
         const tranScope = TransactionScope.current();
-        if(tranScope) {
-            return <StateT>resolvePath(tranScope.getState().get(), this.metadata.path);
-        }
-        else {
-            return this.state;
-        }
+        const appState = (tranScope ? tranScope.getNewState() : this.appStore.getState());
+        const state = resolvePath(appState, this.metadata.path);
+        return state;
     }
 
-    // commit(changes: Partial<StateT>): StateT {
-    //     const tranScope = TransactionScope.current<StateT>();
-    //     if(!tranScope) {
-    //         throw new Error("No current TransactionScope");
-    //     }
-    //
-    //     tranScope.setState(changes);
-    //
-    //     return tranScope.getState();
-    // }
+    update(changes: Partial<StateT>): StateT {
+        const tranScope = TransactionScope.current();
+        if(!tranScope) {
+            throw new Error("No ambient transaction to update");
+        }
+
+        tranScope.update(this.metadata.path, changes);
+
+        const state = resolvePath(tranScope.getNewState(), this.metadata.path);
+        return state;
+    }
 
     private emit(newState, oldState) {
         for(let l of this.listeners) {
-            l(newState, oldState);
+            try {
+                l(newState, oldState);
+            }
+            catch(err) {
+                logger.error("Ignoring error during ServiceStore change event", err);
+            }
         }
     }
 }
