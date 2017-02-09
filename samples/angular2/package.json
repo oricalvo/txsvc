@@ -1,0 +1,36 @@
+{
+  "name": "angular2-min-seed",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node build/dev.js"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/angular/angular.io/blob/master/LICENSE"
+    }
+  ],
+  "dependencies": {
+    "@angular/common": "^2.4.6",
+    "@angular/compiler": "^2.4.6",
+    "@angular/core": "^2.4.6",
+    "@angular/forms": "^2.4.6",
+    "@angular/http": "^2.4.6",
+    "@angular/platform-browser": "^2.4.6",
+    "@angular/platform-browser-dynamic": "^2.4.6",
+    "@angular/router": "^3.4.6",
+    "reflect-metadata": "^0.1.8",
+    "rxjs": "^5.0.3",
+    "shelljs": "^0.7.5",
+    "systemjs-server": "^1.1.32",
+    "txsvc": "^1.0.5",
+    "typescript": "^2.1.5",
+    "zone.js": "^0.7.6"
+  },
+  "devDependencies": {
+    "typescript": "^2.1.0",
+    "node-sass": "^4.5.0",
+    "@types/node": "^6.0.45",
+    "@types/systemjs": "^0.19.31"
+  }
+}
