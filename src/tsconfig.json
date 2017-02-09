@@ -9,6 +9,7 @@
   },
   "files": [
     "fx/index.ts",
-    "fx/TrackableState.ts"
+    "fx/TrackableState.ts",
+    "build/main.ts"
   ]
 }

@@ -13,6 +13,14 @@
   flex-direction: row;
 
   my-clock {
-    margin-left: auto;
+  }
+
+  .login-details {
+    display: inline;
+    margin-right: 1em;
+  }
+
+  .space {
+    flex-grow: 1;
   }
 }

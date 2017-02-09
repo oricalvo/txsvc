@@ -1,5 +1,6 @@
 export const ROOT = "/";
 export const $$NEW = "__txsvc:new";
+export const $$CHANGES = "__txsvc:changes";
 
 export class TrackableState {
     oldState: any;
@@ -86,7 +87,6 @@ export class TrackableState {
         }
 
         var res = Object.assign({}, obj, {[$$NEW]: true});
-        this.changes[res] = {new: true};
         return res;
     }
 
@@ -113,13 +113,17 @@ export class TrackableState {
 
         for (let field in changes) {
             if (changes.hasOwnProperty(field)) {
-                newObj[field] = changes[field];
-            }
-            else {
-                newObj[field] = obj[field];
-            }
+                const newValue = changes[field];
+                const oldValue = newObj[field];
+                if(oldValue!=newValue) {
+                    newObj[field] = newValue;
+                    //newObj[field] = merge(obj && obj[field], changes[field]);
 
-            //newObj[field] = merge(obj && obj[field], changes[field]);
+                    newObj[$$CHANGES] = newObj[$$CHANGES] || {};
+                    newObj[$$CHANGES][field] = {oldValue: oldValue, newValue: newValue};
+                }
+
+            }
         }
 
         return newObj;

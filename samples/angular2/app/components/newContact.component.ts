@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {ContactsStore} from "../../stores/contacts.store";
+import {ContactsStore} from "./../stores/contacts.store";
 
 @Component({
   selector: "my-new-contact",

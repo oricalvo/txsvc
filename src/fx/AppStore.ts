@@ -1,5 +1,5 @@
-import {replace, setNoClone, ROOT, clean} from "./helpers";
-import {ServiceStore, ServiceStoreMetadata} from "./ServiceStore";
+import {setNoClone, ROOT, clean} from "./helpers";
+import {ServiceStore} from "./ServiceStore";
 import {createLogger} from "./logger";
 
 const logger = createLogger("AppStore");
