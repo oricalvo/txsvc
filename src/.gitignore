@@ -1,0 +1,10 @@
+.idea
+node_modules
+fx/**/*.js
+fx/**/*.js.map
+build/**/*.js
+build/**/*.js.map
+yarn-error.log
+yarn.lock
+build_tmp
+package

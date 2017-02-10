@@ -1,0 +1,7 @@
+app/**/*.js
+app/**/*.js.map
+app/**/*.css
+app/**/*.css.map
+build/**/*.js
+build/**/*.js.map
+build_tmp
