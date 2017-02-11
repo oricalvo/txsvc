@@ -21,13 +21,6 @@ describe("ServiceStore", function() {
         });
 
         constructor(private counterStore: CounterStore, private authStore: AuthStore) {
-            let appStore: AppStore<AppState> = new AppStore<AppState>();
-
-            appStore.init([
-                rootStore.store,
-                authStore.store,
-                counterStore.store
-            ]);
         }
 
         get state() {
@@ -97,6 +90,7 @@ describe("ServiceStore", function() {
         }
     }
 
+    let appStore: AppStore<AppState>;
     let counterStore: CounterStore;
     let authStore: AuthStore;
     let rootStore: RootStore;
@@ -106,9 +100,16 @@ describe("ServiceStore", function() {
             toBeEqualArray: toBeEqualArray
         });
 
+        appStore = new AppStore<AppState>();
         counterStore = new CounterStore();
         authStore = new AuthStore();
         rootStore = new RootStore(counterStore, authStore);
+
+        appStore.init([
+            rootStore.store,
+            authStore.store,
+            counterStore.store
+        ]);
     });
 
     it("with @Transaction automatically commits changes to appStore", async function(done) {
