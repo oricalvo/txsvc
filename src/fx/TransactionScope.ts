@@ -3,31 +3,35 @@ import {resolvePath, set, promisify} from "./helpers";
 import {TransactionState} from "./TransactionState";
 import {ServiceStore, ServiceStoreMetadata} from "./ServiceStore";
 import "zone.js";
+import {TransactionalObject} from "./TransactionalObject";
 
 export class TransactionScope {
     private appStore: AppStore<any>;
-    private oldState: any;
-    private newState: any;
+    private tranState: TransactionalObject<any>;
 
     constructor(appStore: AppStore<any>) {
         this.appStore = appStore;
-        this.oldState = this.newState = appStore.getState();
+        this.tranState = new TransactionalObject(appStore.getState());
     }
 
     public update(path: string, changes: any) {
-        this.newState = set(this.newState, path, changes);
+        this.tranState.setProperty(path, changes);
     }
 
     public getNewState() {
-        return this.newState;
+        return this.tranState.getNewState();
     }
 
     public getOldState() {
-        return this.oldState;
+        return this.tranState.getState();
     }
 
     private commit() {
-        this.appStore.commit(this.oldState, this.newState);
+        const oldState = this.tranState.getState();
+        this.tranState.commit();
+        const newState = this.tranState.getState();
+
+        this.appStore.commit(oldState, newState);
     }
 
     static current(): TransactionScope {
@@ -35,11 +39,9 @@ export class TransactionScope {
         return tran;
     }
 
-    static require<StateT>(store: ServiceStore<StateT>, action) {
+    static runInsideTransaction<StateT>(store: ServiceStore<StateT>, action) {
         function runAction(func, commit) {
             return promisify(func()).then(retVal => {
-                //tran.update(store.getMetadata().path, changes);
-
                 if(commit) {
                     tran.commit();
                 }

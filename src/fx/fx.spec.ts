@@ -21,6 +21,13 @@ describe("ServiceStore", function() {
         });
 
         constructor(private counterStore: CounterStore, private authStore: AuthStore) {
+            let appStore: AppStore<AppState> = new AppStore<AppState>();
+
+            appStore.init([
+                rootStore.store,
+                authStore.store,
+                counterStore.store
+            ]);
         }
 
         get state() {
@@ -90,7 +97,6 @@ describe("ServiceStore", function() {
         }
     }
 
-    let appStore: AppStore<AppState>;
     let counterStore: CounterStore;
     let authStore: AuthStore;
     let rootStore: RootStore;
@@ -100,28 +106,21 @@ describe("ServiceStore", function() {
             toBeEqualArray: toBeEqualArray
         });
 
-        appStore = new AppStore<AppState>();
         counterStore = new CounterStore();
         authStore = new AuthStore();
         rootStore = new RootStore(counterStore, authStore);
-
-        appStore.init([
-            rootStore.store,
-            authStore.store,
-            counterStore.store
-        ]);
     });
 
     it("with @Transaction automatically commits changes to appStore", async function(done) {
         await counterStore.inc();
-        expect(appStore.getState().counters.value).toBe(1);
+        expect(rootStore.state.counters.value).toBe(1);
 
         done();
     });
 
     it("Commits supports nested trasactions", async function(done) {
         await rootStore.incAndLogin("Ori");
-        expect(appStore.getState()).toEqual({
+        expect(rootStore.state).toEqual({
             counters: {
                 value: 1,
             },
@@ -134,13 +133,13 @@ describe("ServiceStore", function() {
     });
 
     it("No commit in case of exception", async function(done) {
-        const beforeState = collectValues(appStore.getState());
+        const beforeState = collectValues(rootStore.state);
         try {
             await rootStore.incAndFail();
         }
         catch(err) {
         }
-        const afterState = collectValues(appStore.getState());
+        const afterState = collectValues(rootStore.state);
 
         expect(afterState).toBeEqualArray(beforeState);
 

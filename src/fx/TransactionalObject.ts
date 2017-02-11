@@ -1,14 +1,14 @@
 export const ROOT = "/";
 export const $$MODIFIED = "$$txsvc:modified";
 
-export class TransactionalObject {
-    state: any;
-    newState: any;
+export class TransactionalObject<StateT> {
+    state: StateT;
+    newState: StateT;
     modified: object[];
 
     static ROOT: string = ROOT;
 
-    constructor(initialState) {
+    constructor(initialState: StateT) {
         this.state = this.newState = initialState;
         this.modified = [];
     }
@@ -17,6 +17,7 @@ export class TransactionalObject {
         for(var obj of this.modified) {
             delete obj[$$MODIFIED];
         }
+        this.modified.splice(0, this.modified.length);
 
         this.state = this.newState;
     }

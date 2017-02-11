@@ -13,7 +13,7 @@ export function Transaction() {
                 throw new Error("No store was found for service instance");
             }
 
-            return TransactionScope.require(serviceStore, function() {
+            return TransactionScope.runInsideTransaction(serviceStore, function() {
                 return method.apply(service, args);
             });
 
