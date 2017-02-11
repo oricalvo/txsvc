@@ -5,11 +5,11 @@ import {ServiceStore, ServiceStoreMetadata} from "./ServiceStore";
 import "zone.js";
 
 export class TransactionScope {
-    private appStore: AppStore;
+    private appStore: AppStore<any>;
     private oldState: any;
     private newState: any;
 
-    constructor(appStore: AppStore) {
+    constructor(appStore: AppStore<any>) {
         this.appStore = appStore;
         this.oldState = this.newState = appStore.getState();
     }
@@ -37,14 +37,14 @@ export class TransactionScope {
 
     static require<StateT>(store: ServiceStore<StateT>, action) {
         function runAction(func, commit) {
-            return promisify(func()).then(changes => {
-                tran.update(store.getMetadata().path, changes);
+            return promisify(func()).then(retVal => {
+                //tran.update(store.getMetadata().path, changes);
 
                 if(commit) {
                     tran.commit();
                 }
 
-                return changes;
+                return retVal;
             });
         }
 

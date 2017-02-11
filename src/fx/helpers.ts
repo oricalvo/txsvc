@@ -205,7 +205,7 @@ export function P3
 }
 
 export function promisify(value) {
-    if(value.then) {
+    if(value && value.then) {
         return value;
     }
 

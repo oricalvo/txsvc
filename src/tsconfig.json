@@ -5,11 +5,13 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "removeComments": false,
-    "noImplicitAny": false
+    "noImplicitAny": false,
+    "experimentalDecorators": true
   },
   "files": [
     "fx/index.ts",
-    "fx/TrackableState.ts",
-    "build/main.ts"
+    "fx/fx.spec.ts",
+    "build/main.ts",
+    "spec/globals.d.ts"
   ]
 }

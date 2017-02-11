@@ -3,6 +3,7 @@
   "version": "1.0.6",
   "scripts": {
     "start": "node_modules/.bin/sjs",
+    "test": "jasmine",
     "tsc": "tsc",
     "patch": "node build/main.js patch",
     "pack": "node build/main.js pack"
@@ -18,8 +19,12 @@
   },
   "devDependencies": {
     "@types/core-js": "^0.9.35",
+    "@types/jasmine": "^2.5.42",
     "@types/node": "^7.0.4",
     "build-utils": "^1.0.18",
+    "jasmine": "^2.5.3",
+    "jasmine-expect": "^3.6.0",
+    "object.values": "^1.0.4",
     "typescript": "^2.1.5"
   }
 }

@@ -12,14 +12,18 @@ export interface ServiceStoreMetadata<StateT> {
 }
 
 export class ServiceStore<StateT> {
-    private appStore: AppStore;
+    private appStore: AppStore<any>;
     private listeners: StoreListener<StateT>[];
     private metadata: ServiceStoreMetadata<StateT>;
 
-    constructor(appStore: AppStore, metadata: ServiceStoreMetadata<StateT>) {
-        this.appStore = appStore;
+    constructor(metadata: ServiceStoreMetadata<StateT>) {
+        this.appStore = null;
         this.metadata = metadata;
         this.listeners = [];
+    }
+
+    onAppStoreInitialized(appStore: AppStore<any>) {
+        this.appStore = appStore;
 
         appStore.subscribe((newAppState, oldAppState) => {
             const newState = resolvePath(newAppState, this.metadata.path);
@@ -57,7 +61,7 @@ export class ServiceStore<StateT> {
         });
     }
 
-    getAppStore(): AppStore {
+    getAppStore(): AppStore<any> {
         return this.appStore;
     }
 

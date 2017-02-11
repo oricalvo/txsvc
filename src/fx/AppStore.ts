@@ -13,13 +13,13 @@ export interface StoreListener<StateT> {
 //  Each ServiceStore register itself to it
 //  Commit request is delegated from the ServiceStore to this appStore
 //
-export class AppStore {
+export class AppStore<StateT extends object> {
     private listeners: StoreListener<any>[];
-    private appState: any;
+    private appState: StateT;
     private stores: ServiceStore<any>[];
 
     constructor() {
-        this.appState = {};
+        this.appState = <any>{};
         this.listeners = [];
         this.stores = [];
     }
@@ -29,10 +29,14 @@ export class AppStore {
             this.registerStore(store);
         }
 
+        for(let store of stores) {
+            store.onAppStoreInitialized(this);
+        }
+
         logger.log("Initial appStore", this.appState);
     }
 
-    getState() {
+    getState(): StateT {
         return this.appState;
     }
 
