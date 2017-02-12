@@ -1,8 +1,8 @@
 import {AppStore, StoreListener} from "./AppStore";
 import {TransactionScope} from "./TransactionScope";
-import {resolvePath} from "./helpers";
 import {P1, P2} from "./helpers";
 import {createLogger} from "./logger";
+import {PathResolver} from "./PathResolver";
 
 const logger = createLogger("ServiceStore");
 
@@ -15,10 +15,12 @@ export class ServiceStore<StateT> {
     private appStore: AppStore<any>;
     private listeners: StoreListener<StateT>[];
     private metadata: ServiceStoreMetadata<StateT>;
+    private pathResolver: PathResolver;
 
     constructor(metadata: ServiceStoreMetadata<StateT>) {
         this.appStore = null;
         this.metadata = metadata;
+        this.pathResolver = new PathResolver(this.metadata.path);
         this.listeners = [];
     }
 
@@ -26,8 +28,8 @@ export class ServiceStore<StateT> {
         this.appStore = appStore;
 
         appStore.subscribe((newAppState, oldAppState) => {
-            const newState = resolvePath(newAppState, this.metadata.path);
-            const oldState = resolvePath(oldAppState, this.metadata.path);
+            const newState = this.pathResolver.get(newAppState);
+            const oldState = this.pathResolver.get(oldAppState);
             if(oldState != newState) {
                 this.emit(newState, oldState);
             }
@@ -39,11 +41,28 @@ export class ServiceStore<StateT> {
 
         this.listeners.push(listener);
 
-        const state = resolvePath(this.appStore.getState(), this.metadata.path);
+        //
+        //  Always notify new subscribers of the existing data
+        //
+        const state = this.pathResolver.get(this.appStore.getState());
         listener(state, state);
     }
 
-    subscribe1<K1 extends keyof StateT>(key1: K1, listener: (newState: StateT[K1], oldState: StateT[K1])=>void) {
+    subscribeTo(path: string, listener: (newState, oldState)=>void) {
+        this.ensureInitialized();
+
+        const pathResolver = new PathResolver(path);
+
+        this.listeners.push((s1, s2)=> {
+            const c1 = pathResolver.get(s1);
+            const c2 = pathResolver.get(s2);
+            if(c1 != c2) {
+                listener(c1, c2);
+            }
+        });
+    }
+
+    subscribeTo1<K1 extends keyof StateT>(key1: K1, listener: (newState: StateT[K1], oldState: StateT[K1])=>void) {
         this.ensureInitialized();
 
         this.listeners.push((s1, s2)=> {
@@ -55,7 +74,7 @@ export class ServiceStore<StateT> {
         });
     }
 
-    subscribe2<K1 extends keyof StateT, K2 extends keyof StateT[K1]>(key1: K1, key2: K2, listener: (newState: StateT[K1][K2], oldState: StateT[K1][K2])=>void) {
+    subscribeTo2<K1 extends keyof StateT, K2 extends keyof StateT[K1]>(key1: K1, key2: K2, listener: (newState: StateT[K1][K2], oldState: StateT[K1][K2])=>void) {
         this.ensureInitialized();
 
         this.listeners.push((s1, s2)=> {
@@ -82,7 +101,7 @@ export class ServiceStore<StateT> {
 
         const tranScope = TransactionScope.current();
         const appState = (tranScope ? tranScope.getNewState() : this.appStore.getState());
-        const state = resolvePath(appState, this.metadata.path);
+        const state = this.pathResolver.get(appState);
         return state;
     }
 
@@ -96,7 +115,7 @@ export class ServiceStore<StateT> {
 
         tranScope.update(this.metadata.path, changes);
 
-        const state = resolvePath(tranScope.getNewState(), this.metadata.path);
+        const state = this.pathResolver.get(tranScope.getNewState());
         return state;
     }
 

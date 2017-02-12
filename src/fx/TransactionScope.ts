@@ -1,17 +1,18 @@
 import {AppStore} from "./AppStore";
-import {resolvePath, set, promisify} from "./helpers";
-import {TransactionState} from "./TransactionState";
-import {ServiceStore, ServiceStoreMetadata} from "./ServiceStore";
+import {ServiceStore} from "./ServiceStore";
 import "zone.js";
 import {TransactionalObject} from "./TransactionalObject";
+import {promisify} from "./helpers";
 
 export class TransactionScope {
     private appStore: AppStore<any>;
     private tranState: TransactionalObject<any>;
+    private committed: boolean;
 
     constructor(appStore: AppStore<any>) {
         this.appStore = appStore;
         this.tranState = new TransactionalObject(appStore.getState());
+        this.committed = false;
     }
 
     public update(path: string, changes: any) {
@@ -26,12 +27,17 @@ export class TransactionScope {
         return this.tranState.getState();
     }
 
-    private commit() {
+    public commit() {
+        if(this.committed) {
+            throw new Error("Transaction was already committed");
+        }
+
         const oldState = this.tranState.getState();
         this.tranState.commit();
         const newState = this.tranState.getState();
 
         this.appStore.commit(oldState, newState);
+        this.committed = true;
     }
 
     static current(): TransactionScope {

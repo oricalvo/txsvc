@@ -6,6 +6,7 @@ import {ServiceStore} from "./ServiceStore";
 import {Transaction} from "./decorators";
 import {collectValues} from "../spec/collectValues";
 import {toBeEqualArray} from "../spec/toBeEqualArray";
+import {TransactionScope} from "./TransactionScope";
 
 describe("ServiceStore", function() {
     interface AppState {
@@ -66,6 +67,7 @@ describe("ServiceStore", function() {
 
     interface AuthState {
         userName: string;
+        roles: string[];
     }
 
     class AuthStore {
@@ -73,6 +75,7 @@ describe("ServiceStore", function() {
             path: "auth",
             initialState: {
                 userName: null,
+                roles: [],
             }
         });
 
@@ -82,10 +85,33 @@ describe("ServiceStore", function() {
 
         @Transaction()
         login(userName: string) {
-            return Promise.resolve().then(()=> {
-                this.store.update({
-                    userName: userName,
-                });
+            this.store.update({
+                userName: userName,
+            });
+        }
+
+        @Transaction()
+        loginAndRunCallback(userName: string, callback) {
+            this.store.update({
+                userName: userName,
+            });
+
+            callback();
+            //setTimeout(callback, 100);
+        }
+
+        @Transaction()
+        logout() {
+            this.store.update({
+                userName: null,
+                roles: [],
+            });
+        }
+
+        @Transaction()
+        loadRoles() {
+            this.store.update({
+                roles: ["admin"],
             });
         }
     }
@@ -119,14 +145,16 @@ describe("ServiceStore", function() {
         done();
     });
 
-    it("Commits supports nested trasactions", async function(done) {
+    it("Supports nested trasactions", async function(done) {
         await rootStore.incAndLogin("Ori");
+
         expect(rootStore.state).toEqual({
             counters: {
                 value: 1,
             },
             auth: {
-                userName: "Ori"
+                userName: "Ori",
+                roles: [],
             }
         });
 
@@ -143,6 +171,48 @@ describe("ServiceStore", function() {
         const afterState = collectValues(rootStore.state);
 
         expect(afterState).toBeEqualArray(beforeState);
+
+        done();
+    });
+
+    it("Does not allow second commit", async function(done) {
+        let tranScope;
+        await authStore.loginAndRunCallback("userName", function() {
+            tranScope = TransactionScope.current();
+        });
+
+        expect(() => {
+            tranScope.commit();
+        }).toThrow(new Error("Transaction was already committed"));
+
+        done();
+    });
+
+    it("subscribeTo fires when specific property has changed", async function (done) {
+        let fired = false;
+        authStore.store.subscribeTo("userName", (newState, oldState)=> {
+            fired = true;
+        });
+
+        await authStore.login("Ori");
+
+        //await authStore.logout();
+
+        expect(fired).toBe(true);
+        //expect(authStore.state).toEqual({userName: null, roles: []});
+
+        done();
+    });
+
+    it("subscribeTo does not fire on specific property that was not changed", async function (done) {
+        let fired;
+        authStore.store.subscribeTo("userName", (newState, oldState)=> {
+            fired = true;
+        });
+        fired = false;
+
+
+        expect(fired).toBe(false);
 
         done();
     });

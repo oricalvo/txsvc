@@ -1,6 +1,7 @@
-import {setNoClone, ROOT, clean} from "./helpers";
 import {ServiceStore} from "./ServiceStore";
 import {createLogger} from "./logger";
+import {PathResolver} from "./PathResolver";
+import {ROOT} from "./TransactionalObject";
 
 const logger = createLogger("AppStore");
 
@@ -62,7 +63,6 @@ export class AppStore<StateT extends object> {
 
         logger.log("Changing state", oldState, " ==> ", newState);
 
-        clean(newState);
         this.appState = newState;
 
         this.emit(oldState, newState);
@@ -94,7 +94,7 @@ export class AppStore<StateT extends object> {
             return;
         }
 
-        setNoClone(this.appState, metadata.path, metadata.initialState);
+        PathResolver.create(metadata.path).set(this.appState, metadata.initialState);
     }
 
     private findConflictingPath(path: string): ServiceStore<any> {

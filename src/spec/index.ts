@@ -1,6 +1,8 @@
 /// <reference path="globals.d.ts" />
 
 import "../fx/TransactionalObject.spec";
-import "../fx/fx.spec";
+import "../fx/ServiceStore.spec";
+import "../fx/PathResolver.spec";
+
 
 
