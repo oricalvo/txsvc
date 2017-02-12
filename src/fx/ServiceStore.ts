@@ -100,6 +100,13 @@ export class ServiceStore<StateT> {
         return state;
     }
 
+    static create<StateT>(path: string, initialState: StateT) {
+        return new ServiceStore<StateT>({
+            path: path,
+            initialState: initialState,
+        });
+    }
+
     private emit(newState, oldState) {
         for(let l of this.listeners) {
             try {

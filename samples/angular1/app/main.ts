@@ -1,11 +1,14 @@
 import * as angular from "angular";
 import {AppComponent} from "./components/app.component";
 import {appModule} from "./app.module";
-import {RootStore} from "./stores/root.store";
+import {RootStore, AppState} from "./stores/root.store";
 import {ContactsStore} from "./stores/contacts.store";
+import {AppStore} from "txsvc/AppStore";
+import {ContactListComponent} from "./components/contactList.component";
 
 const components = [
-    AppComponent
+    AppComponent,
+    ContactListComponent
 ];
 
 const stores = [
@@ -13,10 +16,13 @@ const stores = [
     ContactsStore
 ];
 
-appModule.run(() => {
-    //
-    //  Enforce RootStore instantiation
-    //
+appModule.run((rootStore: RootStore, contactsStore: ContactsStore) => {
+    const appStore = new AppStore<AppState>();
+
+    appStore.init([
+        rootStore.store,
+        contactsStore.store,
+    ]);
 });
 
 angular.bootstrap(document.getElementById("html"), [appModule.name]);

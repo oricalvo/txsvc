@@ -33,7 +33,7 @@ export class AppStore<StateT extends object> {
             store.onAppStoreInitialized(this);
         }
 
-        logger.log("Initial appStore", this.appState);
+        logger.log("Initial appState", this.appState);
     }
 
     getState(): StateT {

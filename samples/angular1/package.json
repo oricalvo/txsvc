@@ -4,11 +4,18 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "tsc": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "angular": "^1.6.2"
+    "angular": "^1.6.2",
+    "txsvc": "^1.0.7"
+  },
+  "devDependencies": {
+    "@types/node": "^7.0.5",
+    "systemjs-server": "^1.1.68",
+    "typescript": "^2.2.0"
   }
 }

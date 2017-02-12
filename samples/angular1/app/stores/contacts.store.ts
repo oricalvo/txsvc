@@ -11,12 +11,11 @@ export interface ContactsState {
 }
 
 export class ContactsStore {
-    public store: ServiceStore<ContactsState> = new ServiceStore<ContactsState>({
-        path: "contacts",
-        initialState: {
-            all: [
-            ]
-        }
+    public store = ServiceStore.create<ContactsState>("contacts", {
+        all: [
+            {id:1, name: "Ori"},
+            {id:2, name: "Roni"},
+        ]
     });
 }
 

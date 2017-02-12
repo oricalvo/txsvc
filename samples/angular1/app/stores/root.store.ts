@@ -7,17 +7,9 @@ export interface AppState {
 }
 
 export class RootStore {
-    public store: ServiceStore<AppState> = new ServiceStore<AppState>({
-        path: "/",
-        initialState: {}
-    });
+    public store = ServiceStore.create<AppState>("/", {});
 
-    constructor(contactsStore: ContactsStore) {
-        const appStore = new AppStore<AppState>();
-
-        appStore.init([
-            contactsStore.store,
-        ]);
+    constructor() {
     }
 }
 
