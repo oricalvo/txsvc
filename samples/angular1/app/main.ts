@@ -5,10 +5,12 @@ import {RootStore, AppState} from "./stores/root.store";
 import {ContactsStore} from "./stores/contacts.store";
 import {AppStore} from "txsvc/AppStore";
 import {ContactListComponent} from "./components/contactList.component";
+import {AddContactComponent} from "./components/addContact.component";
 
 const components = [
     AppComponent,
-    ContactListComponent
+    ContactListComponent,
+    AddContactComponent,
 ];
 
 const stores = [

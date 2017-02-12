@@ -12,6 +12,10 @@ export class AppComponent {
             this.contacts = newState.all;
         });
     }
+
+    onDeleteContact($event) {
+        this.contactsStore.deleteById($event.contact.id);
+    }
 }
 
 appModule.component("myApp", {

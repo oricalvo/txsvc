@@ -204,10 +204,30 @@ export function P3
     return P1(P1(P1(obj, key1), key2), key3);
 }
 
-export function promisify(value) {
-    if(value && value.then) {
-        return value;
-    }
+export const promisify = (function() {
+    if(window.hasOwnProperty("angular")) {
+        const angular = window["angular"];
+        let injector;
+        let $q;
 
-    return Promise.resolve(value);
-}
+        return function promisifyOnAngular1(value) {
+            injector = injector || angular.element(document.getElementsByTagName("body")).injector();
+            $q = $q || injector.get("$q");
+
+            if(value && value.then) {
+                return value;
+            }
+            return $q.when(value);
+        }
+    }
+    else {
+        return function promisifyOnNonAngular1(value) {
+            if(value && value.then) {
+                return value;
+            }
+
+            return Promise.resolve(value);
+        }
+    }
+})();
+
