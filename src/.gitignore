@@ -4,6 +4,8 @@ fx/**/*.js
 fx/**/*.js.map
 build/**/*.js
 build/**/*.js.map
+spec/**/*.js
+spec/**/*.js.map
 yarn-error.log
 yarn.lock
 build_tmp
