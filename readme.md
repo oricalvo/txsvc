@@ -176,7 +176,7 @@ TxSvc support asynchronous operations. Continuing with above example we can retu
 
 ```sh
 @Transaction(): Promise<void>
-loginAndIncCounter() {
+loginAndIncActivityCount() {
     return Promise.resolve()
         .then(()=>this.couterStore.inc())
         .then(()=>this.authStore.login());
@@ -187,12 +187,19 @@ Or, in case you are using async/await syntax
 
 ```sh
 @Transaction(): Promise<void>
-async loginAndIncCounter() {
+async loginAndIncActivityCount() {
     await this.couterStore.inc();
     await this.authStore.login();
 }
 ```
-License
-----
+
+### Samples
+Inside the repository you may find the **samples** directory which contains samples for both Angular1 and Angular2. Just run the following commands inside each directory sample
+```sh
+npm install
+npm start
+```
+
+### License
 
 MIT
