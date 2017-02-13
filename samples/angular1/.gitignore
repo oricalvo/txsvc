@@ -2,5 +2,3 @@ app/**/*.js
 app/**/*.js.map
 app/**/*.css
 app/**/*.css.map
-stores/**/*.js
-stores/**/*.js.map
