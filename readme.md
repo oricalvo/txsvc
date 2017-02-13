@@ -172,7 +172,7 @@ class RootStore {
 
 Only if both **inc()** and **login()** complete successfully then the backing appStore is updated and all subscribers are notified
 
-TxSvc support asynchronous operations. Continuing with above example we can return a promise from each action and the transaction decorator will monitor the completeness of the action and only then will update the backing appStore
+TxSvc support asynchronous operations. Continuing with above example we can return a promise from an action and the transaction decorator will monitor the completeness of the action and only then will update the backing appStore
 
 ```sh
 @Transaction(): Promise<void>
@@ -183,7 +183,7 @@ loginAndIncCounter() {
 }
 ```
 
-Or, if you are using async/await syntax
+Or, in case you are using async/await syntax
 
 ```sh
 @Transaction(): Promise<void>
