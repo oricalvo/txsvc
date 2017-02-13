@@ -109,7 +109,7 @@ interface CountersState {
 
 class CountersStore {
     store = ServiceStore.create<AppState>("counters", {
-        activityCounter: 0,
+        activityCount: 0,
     });
     
     get state() {
@@ -119,14 +119,14 @@ class CountersStore {
     @Transaction()
     incActivity() {
         this.store.update({
-            activityCounter: this.state.activityCounter + 1,
+            activityCount: this.state.activityCount + 1,
         });
     }
     
     @Transaction()
     decActivity() {
         this.store.update({
-            activityCounter: this.state.activityCounter - 1,
+            activityCount: this.state.activityCount - 1,
         });
     }
 }
