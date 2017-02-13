@@ -1,6 +1,7 @@
 # TxSvc
 
-TxSvc is a transactional state container for managing application state inside SPA applications like Angular & React. Is relies on Typescript syntax for intercepting calls and ZoneJS mechanism for tracking asynchronous activities
+TxSvc is a transactional state container for SPA applications like Angular & React. 
+It relies on Typescript syntax for intercepting calls and ZoneJS mechanism for tracking asynchronous activities
 
 You can use TxSvc in any JavaScript application
 
@@ -17,14 +18,14 @@ $ npm install txsvc
 Define the application state using Typescript
 
 ```sh
-$ interface AppState {
+interface AppState {
     counter: number
 }
 ```
 Then, define the a store which manages a single aspect of the application state. In our case this is the **counter** field
 
 ```sh
-$ class CounterStore {
+class CounterStore {
     store = ServiceStore.create<AppState>("/", {
         counter: 0,
     });
@@ -33,12 +34,14 @@ $ class CounterStore {
         return this.store.getState();
     }
     
+    @Transaction()
     inc() {
         this.store.update({
             counter: this.state.counter + 1,
         });
     }
     
+    @Transaction()
     dec() {
         this.store.update({
             counter: this.state.counter - 1,
@@ -82,7 +85,85 @@ class CounterComponent {
     }
 }
 
-The power of TxSvc resided inside the ability to compose different actions from different stores but still maintain a single transaction while its span multiple asynchronous operations
+The power of TxSvc resides inside the ability to compose different actions from different stores while maintaining a single transaction that may span multiple asynchronous operations
+
+For example, we want to maintain a counter which counts the number of end user activities. Every time the user logs in or logs out we want to increment the activity counter
+
+```sh
+interface AppState {
+    counter: number,
+    auth: AuthState,
+}
+
+interface AuthState {
+    userName: string,
+    roles: string[]
+}
+
+class CounterStore {
+    store = ServiceStore.create<AppState>("counter", {
+        counter: 0,
+    });
+    
+    get state() {
+        return this.store.getState();
+    }
+    
+    @Transaction()
+    inc() {
+        this.store.update({
+            counter: this.state.counter + 1,
+        });
+    }
+    
+    @Transaction()
+    dec() {
+        this.store.update({
+            counter: this.state.counter - 1,
+        });
+    }
+}
+
+
+class AuthStore {
+    store = ServiceStore.create<AuthState>("auth", {
+        userName: null,
+        roles: null,
+    });
+    
+    @Transaction()
+    login() {
+        this.store.update({
+            userName: "ori",
+            roles: ["admin"]
+        });
+    }
+    
+    @Transaction()
+    logout() {
+        this.store.update({
+            userName: null,
+            roles: null
+        });
+    }
+}
+
+class RootStore {
+    store = ServiceStore.create<AppState>("/", {
+    });
+    
+    constructor(private counterStore: CounterStore, private authStore: AuthStore){
+    }
+    
+    @Transaction()
+    loginAndIncCounter() {
+        this.couterStore.inc();
+        this.authStore.login();
+    }
+}
+
+```
+
 
 Dillinger is a cloud-enabled, mobile-ready, offline-storage, AngularJS powered HTML5 Markdown editor.
 
