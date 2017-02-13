@@ -170,7 +170,7 @@ class RootStore {
 
 ```
 
-Only if both **inc()** and **login()** completes successfully then the backing appStore is updated and all subscribers are notified
+Only if both **inc()** and **login()** complete successfully then the backing appStore is updated and all subscribers are notified
 
 TxSvc support asynchronous operations. Continuing with above example we can use Promises and the transaction monitors the completeness of the promise and only then update the backing appStore
 
