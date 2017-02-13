@@ -11,14 +11,14 @@ $ npm install txsvc
 
 ### Getting Started
 
-Define application state using Typescript
+First, define application state
 
 ```sh
 interface AppState {
     counter: number
 }
 ```
-Then, define the a store which manages a single aspect of the application state. In our case this is the **counter** field
+Then, define the store which manages a single aspect of the application state. In our case this is the **counter** field
 
 ```sh
 class CounterStore {
