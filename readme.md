@@ -162,7 +162,7 @@ class RootStore {
     }
     
     @Transaction()
-    loginAndIncActivityCounter() {
+    loginAndIncActivityCount() {
         this.authStore.login();
         this.countersStore.incActivity();
     }
