@@ -1,5 +1,6 @@
 import {appModule} from "../app.module";
 import {ContactsStore, Contact, ContactsState} from "../stores/contacts.store";
+import {createLogger} from "txsvc/logger";
 
 export class AppComponent {
     contacts: Contact[];
@@ -10,6 +11,12 @@ export class AppComponent {
     $onInit() {
         this.contactsStore.store.subscribe((newState: ContactsState)=> {
             this.contacts = newState.all;
+
+            //debugger;
+
+            //this.contactsStore.add({id:-1, name: "XXX"});
+
+            //console.log("xxx");
         });
     }
 

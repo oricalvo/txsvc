@@ -71,11 +71,11 @@ export class AppStore<StateT extends object> {
     }
 
     private emit(oldState, newState) {
-        for(let l of this.listeners) {
+        for (let l of this.listeners) {
             try {
                 l(this.appState, oldState);
             }
-            catch(err) {
+            catch (err) {
                 logger.error("Ignoring error during AppStore change event", err);
             }
         }
