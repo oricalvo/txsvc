@@ -1,7 +1,7 @@
 # TxSvc
 
 TxSvc is a transactional state container for SPA applications like Angular & React. 
-It relies on Typescript syntax for intercepting calls and ZoneJS mechanism for tracking asynchronous activities. While using TxSvc inside Angular/React applications is simple you can also use TxSvc in any JavaScript application
+It relies on Typescript syntax for intercepting component calls and ZoneJS mechanism for tracking asynchronous activities. While using TxSvc inside Angular/React applications is simple you can also use TxSvc in any JavaScript application
 
 ### Installation
 
@@ -78,7 +78,7 @@ Other components can listen to the change event
 
 ```sh
 class CounterComponent {
-    constuctor() {
+    constuctor(counterStore: CounterStore) {
         counterStore.subscribe(counter => {
             //
             //  Do something with the new counter
