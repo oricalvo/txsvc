@@ -1,6 +1,5 @@
 import {ServiceStore} from "txsvc/ServiceStore";
 import {Transaction} from "txsvc/decorators";
-import {appStore} from "./appStore";
 import {Injectable} from "@angular/core";
 
 export interface Contact {
@@ -19,12 +18,9 @@ export interface ContactsState {
 
 @Injectable()
 export class ContactsStore {
-    public store: ServiceStore<ContactsState> = new ServiceStore<ContactsState>(appStore, {
-        initialState: {
-            all: null,
-            displayed: null,
-        },
-        path: "contacts"
+    public store = ServiceStore.create("contacts", {
+        all: null,
+        displayed: null,
     });
 
     constructor() {
@@ -39,17 +35,17 @@ export class ContactsStore {
         const contacts = [
             {id:1, name: "Ori"},
             {id:2, name: "Roni"},
-        ]
+        ];
 
-        return Promise.resolve({
+        this.store.update({
             all: contacts,
             displayed: contacts.map(c=>({...c, selected: false}))
-        }as Partial<ContactsState>);
+        });
     }
     
     @Transaction()
     addContact(contact: Contact) {
-        return Promise.resolve({
+        this.store.update({
             all: this.state.all.concat([contact]),
             displayed: this.state.displayed.concat([{...contact, selected: false}])
         });
