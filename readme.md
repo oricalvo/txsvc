@@ -94,7 +94,7 @@ For example, we want to maintain a counter which counts the number of end user a
 
 ```sh
 interface AppState {
-    counter: number,
+    counters: CountersState,
     auth: AuthState,
 }
 
@@ -103,9 +103,13 @@ interface AuthState {
     roles: string[]
 }
 
-class CounterStore {
-    store = ServiceStore.create<AppState>("counter", {
-        counter: 0,
+interface CountersState {
+    activityCount: number;
+}
+
+class CountersStore {
+    store = ServiceStore.create<AppState>("counters", {
+        activityCounter: 0,
     });
     
     get state() {
@@ -113,16 +117,16 @@ class CounterStore {
     }
     
     @Transaction()
-    inc() {
+    incActivity() {
         this.store.update({
-            counter: this.state.counter + 1,
+            activityCounter: this.state.activityCounter + 1,
         });
     }
     
     @Transaction()
-    dec() {
+    decActivity() {
         this.store.update({
-            counter: this.state.counter - 1,
+            activityCounter: this.state.activityCounter - 1,
         });
     }
 }
@@ -154,13 +158,13 @@ class RootStore {
     store = ServiceStore.create<AppState>("/", {
     });
     
-    constructor(private counterStore: CounterStore, private authStore: AuthStore){
+    constructor(private countersStore: CountersStore, private authStore: AuthStore){
     }
     
     @Transaction()
-    loginAndIncCounter() {
+    loginAndIncActivityCounter() {
         this.authStore.login();
-        this.couterStore.inc();
+        this.countersStore.incActivity();
     }
 }
 
