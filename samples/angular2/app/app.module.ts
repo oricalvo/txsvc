@@ -25,19 +25,12 @@ import {AppStore} from "txsvc/AppStore";
     ],
     bootstrap: [AppComponent],
     providers: [
-        RootStore,
-        ContactsStore,
-        AuthStore,
+        AppStore.fromStores([
+            RootStore,
+            ContactsStore,
+            AuthStore,
+        ])
     ]
 })
 export class AppModule {
-    constructor(rootStore: RootStore, contactsStore: ContactsStore, authStore: AuthStore) {
-        const appStore: AppStore<AppState> = new AppStore<AppState>();
-
-        appStore.init([
-            rootStore.store,
-            contactsStore.store,
-            authStore.store,
-        ]);
-    }
 }

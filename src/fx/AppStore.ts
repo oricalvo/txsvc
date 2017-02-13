@@ -70,6 +70,34 @@ export class AppStore<StateT extends object> {
         return this.appState;
     }
 
+    static fromStores(storeTypes) {
+        const APP_INITIALIZER = require("@angular/core").APP_INITIALIZER;
+        const Injector = require("@angular/core").Injector;
+
+        function initAppStore(injector) {
+            const appStore = new AppStore<any>();
+
+            appStore.init(storeTypes.map(type => {
+                const service = injector.get(type);
+                if (!service.store) {
+                    console.error("Service has no store field and cannot be registered into appStore", service);
+                    throw new Error("Service has no store field and cannot be registered into appStore");
+                }
+
+                return service.store;
+            }));
+        }
+
+        const appInitializer = {
+            provide: APP_INITIALIZER,
+            useFactory: injector => () => initAppStore(injector),
+            deps: [Injector],
+            multi: true
+        };
+
+        return storeTypes.concat(appInitializer);
+    }
+
     private emit(oldState, newState) {
         for (let l of this.listeners) {
             try {
@@ -81,7 +109,7 @@ export class AppStore<StateT extends object> {
         }
     }
 
-    private registerStore<StateT>(store: ServiceStore<StateT>) {
+    private registerStore<StateT>(store: ServiceStore<any>) {
         const metadata = store.getMetadata();
         const conflict: ServiceStore<any> = this.findConflictingPath(metadata.path);
         if(conflict) {
@@ -91,6 +119,7 @@ export class AppStore<StateT extends object> {
         this.stores.push(store);
 
         if(store.getMetadata().path == ROOT) {
+            this.appState = store.getMetadata().initialState;
             return;
         }
 
