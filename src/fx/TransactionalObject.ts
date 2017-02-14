@@ -1,15 +1,19 @@
+import {createLogger} from "./logger";
 export const ROOT = "/";
 export const $$MODIFIED = "$$txsvc:modified";
+export const $$VERSION = "$$txsvc:version";
+
+const logger = createLogger("TransactionalObject");
 
 export class TransactionalObject<StateT> {
-    state: StateT;
-    newState: StateT;
+    base: StateT;
+    current: StateT;
     modified: object[];
 
     static ROOT: string = ROOT;
 
     constructor(initialState: StateT) {
-        this.state = this.newState = initialState;
+        this.base = this.current = initialState;
         this.modified = [];
     }
 
@@ -17,17 +21,90 @@ export class TransactionalObject<StateT> {
         for(var obj of this.modified) {
             delete obj[$$MODIFIED];
         }
-        this.modified.splice(0, this.modified.length);
+        this.modified = [];
 
-        this.state = this.newState;
+        this.base = this.current;
+    }
+
+    rebase(newBase) {
+        const res = this.internalRebase(this.current, this.base, newBase, "/");
+        this.current = res;
+    }
+
+    private appendPath(path, field) {
+        if(path == "/") {
+            return "/" + field;
+        }
+
+        return path + "/" + field;
+    }
+
+    private internalRebase(current, base, newBase, path) {
+        if(newBase == base) {
+            return current;
+        }
+
+        if(newBase[$$VERSION] < base[$$VERSION]) {
+            return current;
+        }
+
+        let newCurrent = current;
+        for(let field in newBase) {
+            if(field.startsWith("$$txsvc")) {
+                continue;
+            }
+
+            if(base[field]===current[field]) {
+                //
+                //  We hold no change for this field
+                //  Any new change is welcomed
+                //
+                newCurrent = this.setField(current, field, newBase[field])
+                continue;
+            }
+
+            if(typeof base[field]!=="object") {
+                //
+                //  There is a local change inside a value type
+                //  If newBase has different value than this is a conflict
+                //
+                if(base[field] != newBase[field]) {
+                    const fieldPath = this.appendPath(path, field);
+                    console.error("Concurrency error at path \"" + fieldPath + "\".", "base is", base[field], "while latest is", newBase[field]);
+                    throw new Error("Concurrency error at " + fieldPath);
+                }
+            }
+            else {
+                //
+                //  There is a local change inside a reference type
+                //  If newBase is older than our data than we are OK
+                //
+                if(base[field] === newBase[field] || base[field][$$VERSION] > newBase[field][$$VERSION]) {
+                    continue;
+                }
+
+                //
+                //  newBase is same version or bigger
+                //  This implies a chance that newBase holds new values that might be conflicting
+                //
+                const newVal = this.internalRebase(
+                    current[field],
+                    base[field],
+                    newBase[field],
+                    (path=="/" ? path + field : path + "/" + field));
+                newCurrent = this.setField(current, field, newVal);
+            }
+        }
+
+        return newCurrent;
     }
 
     getState() {
-        return this.state;
+        return this.base;
     }
 
     getNewState() {
-        return this.newState;
+        return this.current;
     }
 
     getProperty(root, path) {
@@ -44,9 +121,9 @@ export class TransactionalObject<StateT> {
     }
 
     setProperty(path, changes) {
-        const pathEntries = this.getPath(this.newState, path);
+        const pathEntries = this.getPath(this.current, path);
         const lastEntry = pathEntries[pathEntries.length-1];
-        const parent = (lastEntry ? lastEntry.parent[lastEntry.field] : this.newState);
+        const parent = (lastEntry ? lastEntry.parent[lastEntry.field] : this.current);
         let newValue = this.merge(parent, changes);
 
         for(let i=pathEntries.length-1; i>=0; i--) {
@@ -57,10 +134,14 @@ export class TransactionalObject<StateT> {
             newValue = this.setField(parent, field, newValue);
         }
 
-        this.newState = newValue;
+        this.current = newValue;
     }
 
     private setField(parent, field, value) {
+        if(parent[field] === value) {
+            return parent;
+        }
+
         const newParent = this.clone(parent);
         newParent[field] = value;
         return newParent;
@@ -101,14 +182,19 @@ export class TransactionalObject<StateT> {
             return obj;
         }
 
-        var res = Object.assign({}, obj);
+        const res = Object.assign({}, obj);
+
         res[$$MODIFIED] = true;
         this.modified.push(res);
+
+        res[$$VERSION] = (res[$$VERSION] || 0) + 1;
+
         return res;
     }
 
     private merge(obj, changes) {
         if (obj == changes) {
+
             return changes;
         }
 

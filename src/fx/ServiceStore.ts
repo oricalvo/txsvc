@@ -1,8 +1,8 @@
 import {AppStore, StoreListener} from "./AppStore";
 import {TransactionScope} from "./TransactionScope";
 import {P1, P2} from "./helpers";
-import {createLogger} from "./logger";
 import {PathResolver} from "./PathResolver";
+import {createLogger} from "./logger";
 
 const logger = createLogger("ServiceStore");
 
@@ -106,6 +106,8 @@ export class ServiceStore<StateT> {
     }
 
     update(changes: Partial<StateT>): StateT {
+        logger.log("update", changes);
+
         this.ensureInitialized();
 
         const tranScope = TransactionScope.current();
@@ -116,6 +118,7 @@ export class ServiceStore<StateT> {
         tranScope.update(this.metadata.path, changes);
 
         const state = this.pathResolver.get(tranScope.getNewState());
+        logger.log("update new state is", state);
         return state;
     }
 

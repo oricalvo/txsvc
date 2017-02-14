@@ -1,7 +1,7 @@
 import {ServiceStore} from "./ServiceStore";
-import {createLogger} from "./logger";
 import {PathResolver} from "./PathResolver";
 import {ROOT} from "./TransactionalObject";
+import {createLogger} from "./logger";
 
 const logger = createLogger("AppStore");
 
@@ -10,7 +10,7 @@ export interface StoreListener<StateT> {
 }
 
 //
-//  Holds application state and allow subscribing to changes
+//  Holds application base and allow subscribing to changes
 //  Each ServiceStore register itself to it
 //  Commit request is delegated from the ServiceStore to this appStore
 //
@@ -54,6 +54,7 @@ export class AppStore<StateT extends object> {
 
     commit(oldState, newState) {
         if(newState == this.appState) {
+            logger.log("Nothing new to commit");
             return;
         }
 
@@ -68,34 +69,6 @@ export class AppStore<StateT extends object> {
         this.emit(oldState, newState);
 
         return this.appState;
-    }
-
-    static fromStores(storeTypes) {
-        const APP_INITIALIZER = require("@angular/core").APP_INITIALIZER;
-        const Injector = require("@angular/core").Injector;
-
-        function initAppStore(injector) {
-            const appStore = new AppStore<any>();
-
-            appStore.init(storeTypes.map(type => {
-                const service = injector.get(type);
-                if (!service.store) {
-                    console.error("Service has no store field and cannot be registered into appStore", service);
-                    throw new Error("Service has no store field and cannot be registered into appStore");
-                }
-
-                return service.store;
-            }));
-        }
-
-        const appInitializer = {
-            provide: APP_INITIALIZER,
-            useFactory: injector => () => initAppStore(injector),
-            deps: [Injector],
-            multi: true
-        };
-
-        return storeTypes.concat(appInitializer);
     }
 
     private emit(oldState, newState) {

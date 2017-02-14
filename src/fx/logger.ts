@@ -1,5 +1,11 @@
 let enabled = true;
 
+export interface Logger {
+    log(...args);
+    error(...args);
+    warn(...args);
+}
+
 const nullLogger = {
     log: function(){},
     error: function(){},
@@ -10,7 +16,7 @@ export function enableLogging(enable) {
     enabled = enable;
 }
 
-export function createLogger(prefix) {
+export function createLogger(prefix): Logger {
     if(!enabled) {
         return nullLogger;
     }
