@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "tsc": "tsc",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node build/start.js",
+    "tsc": "tsc"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +16,7 @@
   "devDependencies": {
     "@types/core-js": "^0.9.35",
     "@types/node": "^7.0.5",
+    "build-utils": "^1.0.19",
     "systemjs-server": "^1.1.68",
     "typescript": "^2.2.0"
   }

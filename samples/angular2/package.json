@@ -2,7 +2,8 @@
   "name": "angular2-min-seed",
   "version": "1.0.0",
   "scripts": {
-    "start": "node build/dev.js"
+    "start": "node build/dev.js",
+    "tsc": "tsc"
   },
   "licenses": [
     {
@@ -24,6 +25,7 @@
     "shelljs": "^0.7.5",
     "systemjs-server": "^1.1.32",
     "txsvc": "^1.0.5",
+    "txsvc-ng2": "^1.0.1",
     "typescript": "^2.1.5",
     "zone.js": "^0.7.6"
   },
