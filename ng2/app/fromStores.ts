@@ -1,12 +1,9 @@
 import {AppStore} from "txsvc/AppStore";
 import {APP_INITIALIZER, Injector} from "@angular/core";
 
-export function fromStores(storeTypes) {
-    // const APP_INITIALIZER = require("@angular/core").APP_INITIALIZER;
-    // const Injector = require("@angular/core").Injector;
-
+export function fromStores(appStore: AppStore<any>, storeTypes) {
     function initAppStore(injector) {
-        const appStore = new AppStore<any>();
+        //const appStore = new AppStore<any>noe();
 
         appStore.init(storeTypes.map(type => {
             const service = injector.get(type);

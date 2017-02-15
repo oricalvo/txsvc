@@ -89,7 +89,7 @@ export class TransactionScope {
         return tran;
     }
 
-    static runInsideTransaction<StateT>(store: ServiceStore<StateT>, action) {
+    static runInsideTransaction<StateT>(appStore: AppStore<any>, action) {
         function runAction(func, commit) {
             var retVal = func();
             if(retVal && retVal.then) {
@@ -126,7 +126,7 @@ export class TransactionScope {
         //  This is a root transaction
         //  When completed need to commit to the appStore
         //
-        tran = new TransactionScope(store.getAppStore(), Zone.current);
+        tran = new TransactionScope(appStore, Zone.current);
 
         const spec: ZoneSpec = {
             name: "tran",

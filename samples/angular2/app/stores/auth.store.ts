@@ -33,7 +33,7 @@ export class AuthStore {
     }
 
     @Transaction()
-    logout(name, password) {
+    logout() {
         this.store.update({
             user: null,
         });

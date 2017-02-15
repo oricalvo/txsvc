@@ -51,4 +51,11 @@ export class ContactsStore {
         });
     }
 
+    @Transaction()
+    clear() {
+        this.store.update({
+            all: [],
+            displayed: []
+        });
+    }
 }

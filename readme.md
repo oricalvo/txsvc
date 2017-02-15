@@ -1,7 +1,14 @@
 # TxSvc
 
-TxSvc is a transactional state container for SPA applications like Angular & React. 
-It relies on Typescript syntax for intercepting component calls and ZoneJS mechanism for tracking asynchronous activities. While using TxSvc inside Angular/React applications is simple you can also use TxSvc in any JavaScript application
+A transactional state container for SPA applications
+
+### Who am I
+
+TxSvc is a transactional state container for SPA applications like Angular & React.
+It relies on Typescript syntax for intercepting component calls and ZoneJS mechanism for
+tracking asynchronous activities.
+While using TxSvc inside Angular/React applications is simple you can also use TxSvc
+in any JavaScript application
 
 ### Installation
 
@@ -122,13 +129,6 @@ class CountersStore {
             activityCount: this.state.activityCount + 1,
         });
     }
-    
-    @Transaction()
-    decActivity() {
-        this.store.update({
-            activityCount: this.state.activityCount - 1,
-        });
-    }
 }
 
 class AuthStore {
@@ -168,6 +168,16 @@ class RootStore {
     }
 }
 
+const countersStore = new CountersStore();
+const authStore = new AuthStore();
+const rootStore = new RootStore();
+
+const appStore = new AppStore<AppState>();
+appStore.init([
+    rootStore.store
+    counterStore.store
+    counterStore.store
+]);
 ```
 
 Only if both **inc()** and **login()** complete successfully then the backing appStore is updated and all subscribers are notified

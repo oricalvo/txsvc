@@ -1,6 +1,6 @@
 {
   "name": "txsvc",
-  "version": "1.0.13",
+  "version": "1.0.17",
   "scripts": {
     "test": "node cli.js test",
     "tsc": "tsc",

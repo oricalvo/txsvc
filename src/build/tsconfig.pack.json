@@ -7,9 +7,10 @@
     "inlineSourceMap": true,
     "removeComments": false,
     "noImplicitAny": false,
-    "declaration": false
+    "declaration": true,
+    "outDir": "../build_tmp"
   },
   "files": [
-    "./main.ts"
+    "../fx/index.ts"
   ]
 }

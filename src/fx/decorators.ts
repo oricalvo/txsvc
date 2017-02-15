@@ -1,5 +1,12 @@
 import {TransactionScope} from "./TransactionScope";
 import {ServiceStore} from "./ServiceStore";
+import {AppStore} from "./AppStore";
+
+export function transaction(appStore: AppStore<any>, func) {
+    return TransactionScope.runInsideTransaction(appStore, function() {
+        return func();
+    });
+}
 
 export function Transaction() {
     return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -7,13 +14,27 @@ export function Transaction() {
 
         descriptor.value = function(...args) {
             const service = this;
-            const serviceStore: ServiceStore<any> = service.store;
+            let appStore: AppStore<any>;
 
-            if(!serviceStore) {
-                throw new Error("No store was found for service instance");
+            if(service.store) {
+                if(!(service.store instanceof ServiceStore)) {
+                    throw new Error("Unexpected store value. Should be of type ServiceStore");
+                }
+
+                appStore = service.store.getAppStore();
+            }
+            else if(service.appStore) {
+                if(!(service.appStore instanceof AppStore)) {
+                    throw new Error("Unexpected appStore value. Should be of type AppStore");
+                }
+
+                appStore = service.appStore;
+            }
+            else {
+                throw new Error("No store/appStore field was found for service instance");
             }
 
-            return TransactionScope.runInsideTransaction(serviceStore, function() {
+            return TransactionScope.runInsideTransaction(appStore, function() {
                 return method.apply(service, args);
             });
 
