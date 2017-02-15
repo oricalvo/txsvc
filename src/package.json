@@ -2,11 +2,10 @@
   "name": "txsvc",
   "version": "1.0.13",
   "scripts": {
-    "start": "node_modules/.bin/sjs",
-    "test": "jasmine",
+    "test": "node cli.js test",
     "tsc": "tsc",
-    "patch": "node build/main.js patch",
-    "pack": "node build/main.js pack"
+    "patch": "node cli.js patch",
+    "pack": "node cli.js pack"
   },
   "licenses": [
     {

@@ -1,11 +1,13 @@
 import {TransactionalObject} from "./TransactionalObject";
 import {collectValues} from "../spec/collectValues";
 import {toBeEqualArray} from "../spec/toBeEqualArray";
+import {toDeeplyEqual} from "../spec/toDeeplyEqual";
 
 describe("TransactionalObject", function() {
     beforeEach(function() {
         jasmine.addMatchers({
-            toBeEqualArray: toBeEqualArray
+            toBeEqualArray: toBeEqualArray,
+            toDeeplyEqual: toDeeplyEqual
         });
     });
 
@@ -37,7 +39,7 @@ describe("TransactionalObject", function() {
         tx.setProperty(TransactionalObject.ROOT, {id:2});
         tx.commit();
 
-        expect(tx.getState()).toEqual({id:2, name: "Ori"});
+        expect(tx.getState()).toDeeplyEqual({id:2, name: "Ori"});
     });
 
     it(`Reuses the newState object when running multiple updates`, function() {
@@ -79,7 +81,7 @@ describe("TransactionalObject", function() {
             tx.setProperty("nested.nested.nested", {name:"Ori"});
             tx.commit();
 
-            expect(tx.getState()).toEqual({
+            expect(tx.getState()).toDeeplyEqual({
                 id:1,
                 nested: {
                     id: 2,

@@ -3,17 +3,31 @@ import * as cli from "build-utils/cli";
 import {copyGlob, copyFile} from "build-utils/fs";
 import {exec} from "build-utils/process";
 
-cli.command("patch", patch);
-cli.command("pack", pack);
+export async function test() {
+    await compileTS();
+    await jasmine();
+}
 
-async function pack() {
+async function compileTS() {
+    console.log("Compiling typescript");
+
+    await exec(path.resolve("node_modules/.bin/tsc"));
+}
+
+async function jasmine() {
+    await exec(path.resolve("node_modules/.bin/jasmine"));
+}
+
+export async function pack() {
+    console.log("Creating npm package");
+
     await exec(path.resolve("node_modules/.bin/tsc") + " -p ./build/tsconfig.build.json");
     await copyGlob("./build_tmp/*.js", "./package");
     await copyGlob("./build_tmp/*.d.ts", "./package");
     await copyFile("./package.json", "package/package.json");
 }
 
-async function patch() {
+export async function patch() {
     await pack();
 
     await exec("npm version patch", {
@@ -26,5 +40,3 @@ async function patch() {
 
     await copyFile("package/package.json", "./package.json");
 }
-
-cli.run();

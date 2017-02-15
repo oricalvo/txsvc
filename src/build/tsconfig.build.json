@@ -11,6 +11,6 @@
     "outDir": "../build_tmp"
   },
   "files": [
-    "../fx/index.ts"
+    "./main.ts"
   ]
 }

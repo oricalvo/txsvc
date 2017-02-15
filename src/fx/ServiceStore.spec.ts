@@ -6,6 +6,7 @@ import {ServiceStore} from "./ServiceStore";
 import {Transaction} from "./decorators";
 import {collectValues} from "../spec/collectValues";
 import {toBeEqualArray} from "../spec/toBeEqualArray";
+import {toDeeplyEqual} from "../spec/toDeeplyEqual";
 import {TransactionScope} from "./TransactionScope";
 
 describe("ServiceStore", function() {
@@ -123,7 +124,8 @@ describe("ServiceStore", function() {
 
     beforeEach(function() {
         jasmine.addMatchers({
-            toBeEqualArray: toBeEqualArray
+            toBeEqualArray: toBeEqualArray,
+            toDeeplyEqual: toDeeplyEqual
         });
 
         appStore = new AppStore<AppState>();
@@ -148,7 +150,7 @@ describe("ServiceStore", function() {
     it("Supports nested trasactions", async function(done) {
         await rootStore.incAndLogin("Ori");
 
-        expect(rootStore.state).toEqual({
+        expect(rootStore.state).toDeeplyEqual({
             counters: {
                 value: 1,
             },
