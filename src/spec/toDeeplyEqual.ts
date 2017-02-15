@@ -17,8 +17,6 @@ export function toDeeplyEqual(util, customEqualityTesters) {
 }
 
 function run(actual, expected) {
-    console.log("comparing " + JSON.stringify(actual) + " with " + JSON.stringify(expected));
-
     for (let key of Object.keys(actual)) {
         if (key.startsWith("$$txsvc")) {
             continue;
