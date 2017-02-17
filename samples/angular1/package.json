@@ -11,7 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "angular": "^1.6.2",
-    "txsvc": "^1.0.7"
+    "build-utils": "^1.0.25",
+    "txsvc": "^1.0.19"
   },
   "devDependencies": {
     "@types/core-js": "^0.9.35",

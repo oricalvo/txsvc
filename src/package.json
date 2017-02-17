@@ -1,11 +1,11 @@
 {
   "name": "txsvc",
-  "version": "1.0.17",
+  "version": "1.0.19",
   "scripts": {
-    "test": "node cli.js test",
-    "tsc": "tsc",
-    "patch": "node cli.js patch",
-    "pack": "node cli.js pack"
+    "test": "bu test",
+    "patch": "bu patch",
+    "pack": "bu pack",
+    "tsc": "tsc"
   },
   "licenses": [
     {
@@ -20,7 +20,7 @@
     "@types/core-js": "^0.9.35",
     "@types/jasmine": "^2.5.42",
     "@types/node": "^7.0.4",
-    "build-utils": "^1.0.18",
+    "build-utils": "^1.0.23",
     "jasmine": "^2.5.3",
     "jasmine-expect": "^3.6.0",
     "object.values": "^1.0.4",

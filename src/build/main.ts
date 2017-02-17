@@ -3,6 +3,11 @@ import * as cli from "build-utils/cli";
 import {copyGlob, copyFile} from "build-utils/fs";
 import {exec} from "build-utils/process";
 
+cli.command("patch", patch);
+cli.command("pack", pack);
+cli.command("test", test);
+cli.run();
+
 export async function test() {
     await compileTS();
     await jasmine();
