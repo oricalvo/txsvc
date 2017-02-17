@@ -9,6 +9,7 @@
     "node_modules"
   ],
   "files": [
-    "./app/index.ts"
+    "./app/index.ts",
+    "./build/main.ts"
   ]
 }

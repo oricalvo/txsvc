@@ -1,12 +1,11 @@
 {
   "name": "txsvc-ng2",
-  "version": "1.0.2",
+  "version": "1.0.18",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "pack": "node build/main.js pack",
-    "patch": "node build/main.js patch",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "pack": "node cli.js pack",
+    "patch": "node cli.js patch"
   },
   "author": "",
   "license": "ISC",
