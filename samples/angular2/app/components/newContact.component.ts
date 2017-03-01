@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {ContactsStore} from "./../stores/contacts.store";
+import {ContactsService} from "../services/contacts.service";
 
 @Component({
   selector: "my-new-contact",
@@ -10,7 +10,7 @@ import {ContactsStore} from "./../stores/contacts.store";
 export class NewContactComponent {
   name: string;
 
-  constructor(private contactStore: ContactsStore) {
+  constructor(private contactStore: ContactsService) {
   }
 
   add() {

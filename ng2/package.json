@@ -1,6 +1,6 @@
 {
   "name": "txsvc-ng2",
-  "version": "1.0.18",
+  "version": "1.0.26",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,14 +10,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@angular/core": "^2.4.7",
-    "rxjs": "^5.1.1",
-    "txsvc": "^1.0.12",
-    "zone.js": "^0.7.6"
+    "@angular/compiler": "^2.4.8",
+    "@angular/compiler-cli": "^2.4.8"
   },
   "devDependencies": {
     "@types/node": "^7.0.5",
     "build-utils": "^1.0.19",
     "typescript": "^2.2.0"
+  },
+  "peerDependencies": {
+    "@angular/core": "^2.4.7",
+    "rxjs": "^5.1.1",
+    "txsvc": "^1.0.12",
+    "zone.js": "^0.7.6"
   }
 }

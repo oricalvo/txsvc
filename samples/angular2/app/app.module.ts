@@ -4,20 +4,17 @@ import {AppComponent}  from './components/app.component';
 import {ClockComponent} from "./components/clock.component";
 import {ContactListComponent} from "./components/contactList.component";
 import {ContactDetailsComponent} from "./components/contactDetails.component";
-import {AppActivities} from "./services/appActivities.service";
-import {ContactsStore} from "./stores/contacts.store";
+import {AppActivities, AppState} from "./services/appActivities.service";
 import {NewContactComponent} from "./components/newContact.component";
 import {FormsModule} from "@angular/forms";
-import {AuthStore} from "./stores/auth.store";
-import {fromStores} from "txsvc-ng2/fromStores";
 import {AppStore} from "txsvc/AppStore";
-
-const appStore = new AppStore<any>();
+import {AuthService} from "./services/auth.service";
+import {ContactsService} from "./services/contacts.service";
 
 @NgModule({
     imports: [
         BrowserModule,
-        FormsModule
+        FormsModule,
     ],
     declarations: [
         AppComponent,
@@ -29,12 +26,18 @@ const appStore = new AppStore<any>();
     bootstrap: [AppComponent],
     providers: [
         AppActivities,
-        {provide: AppStore, useValue: appStore},
-        fromStores(appStore, [
-            ContactsStore,
-            AuthStore,
-        ])
+        AppStore,
+        AuthService,
+        ContactsService
     ]
 })
 export class AppModule {
+    constructor(appStore: AppStore<AppState>,
+                authService: AuthService,
+                contactsService: ContactsService) {
+        appStore.init([
+            authService,
+            contactsService
+        ]);
+    }
 }

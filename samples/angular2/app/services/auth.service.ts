@@ -1,6 +1,6 @@
-import {ServiceStore} from "txsvc/ServiceStore";
 import {Injectable} from "@angular/core";
-import {Transaction} from "txsvc/decorators";
+import {Activity} from "txsvc/decorators";
+import {ServiceStore} from "txsvc/ServiceStore";
 
 export interface UserDetails {
     id: number;
@@ -13,7 +13,7 @@ export interface AuthState {
 }
 
 @Injectable()
-export class AuthStore {
+export class AuthService {
     public store = ServiceStore.create<AuthState>("auth", {
         user: null,
         lastLoginDate: null
@@ -22,7 +22,7 @@ export class AuthStore {
     constructor() {
     }
 
-    @Transaction()
+    @Activity()
     login(name, password) {
         this.store.update({
             user: {
@@ -32,7 +32,7 @@ export class AuthStore {
         });
     }
 
-    @Transaction()
+    @Activity()
     logout() {
         this.store.update({
             user: null,

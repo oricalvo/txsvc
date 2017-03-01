@@ -2,6 +2,7 @@ import {ServiceStore} from "./ServiceStore";
 import {PathResolver} from "./PathResolver";
 import {ROOT} from "./TransactionalObject";
 import {createLogger} from "./logger";
+import {IService} from "./Service";
 
 const logger = createLogger("AppStore");
 
@@ -25,13 +26,17 @@ export class AppStore<StateT extends object> {
         this.stores = [];
     }
 
-    init(stores: ServiceStore<any>[]) {
+    init(stores: IService<any>[]) {
         for(let store of stores) {
-            this.registerStore(store);
+            if(store.store instanceof ServiceStore) {
+                this.registerStore(store.store);
+            }
         }
 
         for(let store of stores) {
-            store.onAppStoreInitialized(this);
+            if(store.store instanceof ServiceStore) {
+                store.store.onAppStoreInitialized(this);
+            }
         }
 
         logger.log("Initial appState", this.appState);

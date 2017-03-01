@@ -1,1 +1,1 @@
-export {fromStores} from "./fromStores";
+export * from "./fromStores";

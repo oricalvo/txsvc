@@ -144,7 +144,7 @@ export class TransactionScope {
 
     private ensureNotCommitted() {
         if(this.committed) {
-            throw new Error("Transaction was already committed");
+            throw new Error("Activity was already committed");
         }
     }
 }

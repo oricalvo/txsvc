@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import {Contact, ContactsState, ContactsStore} from "./../stores/contacts.store";
-import {AuthState, AuthStore} from "../stores/auth.store";
+import {Contact, ContactsState, ContactsService} from "../services/contacts.service";
+import {AuthState, AuthService} from "../services/auth.service";
 import {AppActivities} from "../services/appActivities.service";
 
 @Component({
@@ -13,14 +13,11 @@ export class AppComponent {
   contacts: ContactsState;
   auth: AuthState;
 
-  constructor(private appActivities: AppActivities,
-              private contactsStore: ContactsStore,
-              private authStore: AuthStore) {
-    this.contactsStore.load();
+  constructor(private appActivities: AppActivities) {
   }
 
   ngOnInit() {
-    this.contactsStore.store.getAppStore().subscribe(state => {
+    this.appActivities.store.subscribe(state => {
       this.contacts = state.contacts;
       this.auth = state.auth;
     });
@@ -31,7 +28,7 @@ export class AppComponent {
   }
 
   login() {
-    this.authStore.login("oric", "123");
+    this.appActivities.login("oric", "123");
   }
 
   logout() {

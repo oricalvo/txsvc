@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {Contact} from "./../stores/contacts.store";
+import {Contact} from "../services/contacts.service";
 import {createLogger} from "txsvc/logger";
 
 const logger = createLogger("ContactDetailsComponent");

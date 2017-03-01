@@ -1,6 +1,6 @@
-import {ServiceStore} from "txsvc/ServiceStore";
-import {Transaction} from "txsvc/decorators";
+import {Activity} from "txsvc/decorators";
 import {Injectable} from "@angular/core";
+import {ServiceStore} from "txsvc/ServiceStore";
 
 export interface Contact {
     id: number;
@@ -17,7 +17,7 @@ export interface ContactsState {
 }
 
 @Injectable()
-export class ContactsStore {
+export class ContactsService {
     public store = ServiceStore.create("contacts", {
         all: null,
         displayed: null,
@@ -30,7 +30,7 @@ export class ContactsStore {
         return this.store.getState();
     }
 
-    @Transaction()
+    @Activity()
     load() {
         const contacts = [
             {id:1, name: "Ori"},
@@ -43,7 +43,7 @@ export class ContactsStore {
         });
     }
     
-    @Transaction()
+    @Activity()
     addContact(contact: Contact) {
         this.store.update({
             all: this.state.all.concat([contact]),
@@ -51,7 +51,7 @@ export class ContactsStore {
         });
     }
 
-    @Transaction()
+    @Activity()
     clear() {
         this.store.update({
             all: [],

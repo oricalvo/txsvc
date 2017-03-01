@@ -3,7 +3,7 @@ enableLogging(false);
 
 import {AppStore} from "./AppStore";
 import {ServiceStore} from "./ServiceStore";
-import {Transaction} from "./decorators";
+import {Activity} from "./decorators";
 import {collectValues} from "../spec/collectValues";
 import {toBeEqualArray} from "../spec/toBeEqualArray";
 import {toDeeplyEqual} from "../spec/toDeeplyEqual";
@@ -14,7 +14,7 @@ describe("ServiceStore", function() {
         counters: CounterState,
     }
 
-    class RootStore {
+    class RootService {
         store: ServiceStore<AppState> = new ServiceStore<AppState>({
             path: "/",
             initialState: {
@@ -22,20 +22,20 @@ describe("ServiceStore", function() {
             }
         });
 
-        constructor(private counterStore: CounterStore, private authStore: AuthStore) {
+        constructor(private counterStore: CounterService, private authStore: AuthService) {
         }
 
         get state() {
             return this.store.getState();
         }
 
-        @Transaction()
+        @Activity()
         async incAndFail() {
             this.counterStore.inc();
             throw new Error("Ooops");
         }
 
-        @Transaction()
+        @Activity()
         async incAndLogin(userName: string) {
             this.counterStore.inc();
             await this.authStore.login(userName);
@@ -46,7 +46,7 @@ describe("ServiceStore", function() {
         value: number;
     }
 
-    class CounterStore {
+    class CounterService {
         store: ServiceStore<CounterState> = new ServiceStore<CounterState>({
             path: "counters",
             initialState: {
@@ -58,7 +58,7 @@ describe("ServiceStore", function() {
             return this.store.getState();
         }
 
-        @Transaction()
+        @Activity()
         inc() {
             this.store.update({
                 value: this.state.value + 1,
@@ -71,7 +71,7 @@ describe("ServiceStore", function() {
         roles: string[];
     }
 
-    class AuthStore {
+    class AuthService {
         store: ServiceStore<AuthState> = new ServiceStore<AuthState>({
             path: "auth",
             initialState: {
@@ -84,14 +84,14 @@ describe("ServiceStore", function() {
             return this.store.getState();
         }
 
-        @Transaction()
+        @Activity()
         login(userName: string) {
             this.store.update({
                 userName: userName,
             });
         }
 
-        @Transaction()
+        @Activity()
         loginAndRunCallback(userName: string, callback) {
             this.store.update({
                 userName: userName,
@@ -101,7 +101,7 @@ describe("ServiceStore", function() {
             //setTimeout(callback, 100);
         }
 
-        @Transaction()
+        @Activity()
         logout() {
             this.store.update({
                 userName: null,
@@ -109,7 +109,7 @@ describe("ServiceStore", function() {
             });
         }
 
-        @Transaction()
+        @Activity()
         loadRoles() {
             this.store.update({
                 roles: ["admin"],
@@ -118,9 +118,9 @@ describe("ServiceStore", function() {
     }
 
     let appStore: AppStore<AppState>;
-    let counterStore: CounterStore;
-    let authStore: AuthStore;
-    let rootStore: RootStore;
+    let counterStore: CounterService;
+    let authStore: AuthService;
+    let rootStore: RootService;
 
     beforeEach(function() {
         jasmine.addMatchers({
@@ -129,18 +129,18 @@ describe("ServiceStore", function() {
         });
 
         appStore = new AppStore<AppState>();
-        counterStore = new CounterStore();
-        authStore = new AuthStore();
-        rootStore = new RootStore(counterStore, authStore);
+        counterStore = new CounterService();
+        authStore = new AuthService();
+        rootStore = new RootService(counterStore, authStore);
 
         appStore.init([
-            rootStore.store,
-            authStore.store,
-            counterStore.store
+            rootStore,
+            authStore,
+            counterStore
         ]);
     });
 
-    it("with @Transaction automatically commits changes to appStore", async function(done) {
+    it("with @Activity automatically commits changes to appStore", async function(done) {
         await counterStore.inc();
         expect(rootStore.state.counters.value).toBe(1);
 
@@ -185,7 +185,7 @@ describe("ServiceStore", function() {
 
         expect(() => {
             tranScope.commit();
-        }).toThrow(new Error("Transaction was already committed"));
+        }).toThrow(new Error("Activity was already committed"));
 
         done();
     });

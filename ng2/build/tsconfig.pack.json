@@ -13,5 +13,8 @@
   },
   "files": [
     "../app/index.ts"
-  ]
+  ],
+  "angularCompilerOptions": {
+    "genDir": "../compiled"
+  }
 }

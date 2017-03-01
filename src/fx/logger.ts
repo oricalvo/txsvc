@@ -12,7 +12,10 @@ const nullLogger = {
     warn: function(){},
 };
 
-export function enableLogging(enable) {
+// function internalEnableLogging(enable) {
+// }
+
+export const enableLogging = function(enable) {
     enabled = enable;
 }
 
