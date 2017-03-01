@@ -3,7 +3,7 @@ enableLogging(false);
 
 import {AppStore} from "./AppStore";
 import {ServiceStore} from "./ServiceStore";
-import {Activity} from "./decorators";
+import {Activity, transaction} from "./decorators";
 import {collectValues} from "../spec/collectValues";
 import {toBeEqualArray} from "../spec/toBeEqualArray";
 import {toDeeplyEqual} from "../spec/toDeeplyEqual";
@@ -140,14 +140,14 @@ describe("ServiceStore", function() {
         ]);
     });
 
-    it("with @Activity automatically commits changes to appStore", async function(done) {
+    xit("with @Activity automatically commits changes to appStore", async function(done) {
         await counterStore.inc();
         expect(rootStore.state.counters.value).toBe(1);
 
         done();
     });
 
-    it("Supports nested trasactions", async function(done) {
+    xit("Supports nested trasactions", async function(done) {
         await rootStore.incAndLogin("Ori");
 
         expect(rootStore.state).toDeeplyEqual({
@@ -163,7 +163,7 @@ describe("ServiceStore", function() {
         done();
     });
 
-    it("No commit in case of exception", async function(done) {
+    xit("No commit in case of exception", async function(done) {
         const beforeState = collectValues(rootStore.state);
         try {
             await rootStore.incAndFail();
@@ -177,7 +177,7 @@ describe("ServiceStore", function() {
         done();
     });
 
-    it("Does not allow second commit", async function(done) {
+    xit("Does not allow second commit", async function(done) {
         let tranScope;
         await authStore.loginAndRunCallback("userName", function() {
             tranScope = TransactionScope.current();
@@ -190,7 +190,7 @@ describe("ServiceStore", function() {
         done();
     });
 
-    it("subscribeTo fires when specific property has changed", async function (done) {
+    xit("subscribeTo fires when specific property has changed", async function (done) {
         let fired = false;
         authStore.store.subscribeTo("userName", (newState, oldState)=> {
             fired = true;
@@ -206,7 +206,7 @@ describe("ServiceStore", function() {
         done();
     });
 
-    it("subscribeTo does not fire on specific property that was not changed", async function (done) {
+    xit("subscribeTo does not fire on specific property that was not changed", async function (done) {
         let fired;
         authStore.store.subscribeTo("userName", (newState, oldState)=> {
             fired = true;
@@ -215,6 +215,70 @@ describe("ServiceStore", function() {
 
 
         expect(fired).toBe(false);
+
+        done();
+    });
+
+    it("raises concurrency error when an array is modified by the two activities", async function (done) {
+        interface AppState {
+            nums: number[];
+        }
+
+        function delay(ms) {
+            return new Promise((resolve, reject)=> {
+                setTimeout(function() {
+                    resolve();
+                }, ms);
+            });
+        }
+
+        class Service1 {
+            store = ServiceStore.create<AppState>("/", {
+                nums: [],
+            });
+
+            get state() {
+                return this.store.getState();
+            }
+
+            @Activity({beginTransaction: false})
+            async run() {
+                await delay(1000);
+
+                transaction(this.store, ()=> {
+                    this.store.update({
+                        nums: this.state.nums.concat([1])
+                    })
+                });
+            }
+        }
+
+        const appStore = new AppStore<AppState>();
+        const service1 = new Service1();
+        appStore.init([
+            service1
+        ]);
+
+        let fired = false;
+        authStore.store.subscribeTo("userName", (newState, oldState)=> {
+            fired = true;
+        });
+
+        let thrown = false;
+        try {
+            await Promise.all([
+                service1.run(),
+                service1.run()
+            ]);
+        }
+        catch(err) {
+            thrown = true;
+        }
+
+        expect(appStore.getState().nums.length).toEqual(2);
+
+        //expect(fired).toBe(false);
+        //expect(thrown).toEqual(true);
 
         done();
     });

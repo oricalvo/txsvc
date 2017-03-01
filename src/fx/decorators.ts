@@ -6,7 +6,9 @@ import {IService} from "./Service";
 
 const logger = createLogger("decorators");
 
-export function transaction(appStore: AppStore<any>, func) {
+export function transaction(store: AppStore<any> | ServiceStore<any>, func) {
+    const appStore = getAppStoreFromStore(store);
+
     return TransactionScope.runInsideTransaction(appStore, function() {
         return func();
     });
@@ -24,15 +26,20 @@ function getStoreFromService(service: IService<any>) {
         throw new Error("No store field was found for store instance");
     }
 
-    if(store instanceof ServiceStore) {
-        return store.getAppStore();
-    }
+    return getAppStoreFromStore(store);
+}
 
+
+function getAppStoreFromStore<T extends object>(store: AppStore<T> | ServiceStore<T>): AppStore<T> {
     if(store instanceof AppStore) {
         return store;
     }
 
-    throw new Error("Unexpected store value. Should be of type ServiceStore");
+    if(store instanceof ServiceStore) {
+        return store.getAppStore();
+    }
+
+    throw new Error("Unexpected store value. Should be of type AppStore | ServiceStore");
 }
 
 export function Activity(options?: ActivityOptions) {
