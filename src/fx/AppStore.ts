@@ -10,6 +10,22 @@ export interface StoreListener<StateT> {
     (newState: StateT, oldState: StateT): void;
 }
 
+// export abstract class AppStore<StateT extends object> {
+//     abstract init(stores: ServiceStore<any>[]);
+//
+//     abstract getState(): StateT;
+//
+//     abstract subscribe(listener: (newState, oldState) => void);
+//
+//     abstract unsubscribe(listener: (newState, oldState) => void);
+//
+//     abstract commit(oldState, newState);
+//
+//     static createStore<StateT extends object>(): AppStore<StateT> {
+//         return new AppStoreImpl<StateT>();
+//     }
+// }
+
 //
 //  Holds application base and allow subscribing to changes
 //  Each ServiceStore register itself to it

@@ -11,7 +11,7 @@ export interface ServiceStoreMetadata<StateT> {
     initialState: StateT;
 }
 
-export class ServiceStore<StateT> {
+export class ServiceStore<StateT extends object> {
     private appStore: AppStore<any>;
     private listeners: StoreListener<StateT>[];
     private metadata: ServiceStoreMetadata<StateT>;
@@ -122,7 +122,7 @@ export class ServiceStore<StateT> {
         return state;
     }
 
-    static create<StateT>(path: string, initialState: StateT) {
+    static create<StateT extends object>(path: string, initialState: StateT) {
         return new ServiceStore<StateT>({
             path: path,
             initialState: initialState,

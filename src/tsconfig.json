@@ -10,6 +10,7 @@
   },
   "files": [
     "fx/index.ts",
+    "fx/globals.d.ts",
     "build/main.ts",
     "spec/index.ts"
   ]

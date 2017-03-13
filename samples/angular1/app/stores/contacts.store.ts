@@ -1,6 +1,6 @@
 import {ServiceStore} from "txsvc/ServiceStore";
 import {appModule} from "../app.module";
-import {Transaction} from "txsvc/decorators";
+import {Activity, Service} from "txsvc/decorators";
 
 export interface Contact {
     id: number;
@@ -23,14 +23,14 @@ export class ContactsStore {
         return this.store.getState();
     }
 
-    @Transaction()
+    @Activity()
     add(contact: Contact) {
         this.store.update({
             all: this.state.all.concat(contact)
         });
     }
 
-    @Transaction()
+    @Activity()
     deleteById(id: number) {
         const index = this.state.all.findIndex(c => c.id == id);
         if(index == -1) {

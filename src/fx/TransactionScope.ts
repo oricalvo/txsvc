@@ -1,8 +1,10 @@
 import {AppStore} from "./AppStore";
-import {ServiceStore} from "./ServiceStore";
-import "zone.js";
 import {TransactionalObject} from "./TransactionalObject";
 import {createLogger, Logger} from "./logger";
+
+if(typeof Zone === "undefined") {
+    throw new Error("txsvc cannot execute without zone.js. Please ensure zone.js is loaded before txsvc");
+}
 
 export class TransactionScope {
     private appStore: AppStore<any>;
