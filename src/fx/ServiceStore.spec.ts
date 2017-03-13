@@ -140,14 +140,14 @@ describe("ServiceStore", function() {
         ]);
     });
 
-    xit("with @Activity automatically commits changes to appStore", async function(done) {
+    it("with @Activity automatically commits changes to appStore", async function(done) {
         await counterStore.inc();
         expect(rootStore.state.counters.value).toBe(1);
 
         done();
     });
 
-    xit("Supports nested trasactions", async function(done) {
+    it("Supports nested trasactions", async function(done) {
         await rootStore.incAndLogin("Ori");
 
         expect(rootStore.state).toDeeplyEqual({
@@ -163,7 +163,7 @@ describe("ServiceStore", function() {
         done();
     });
 
-    xit("No commit in case of exception", async function(done) {
+    it("No commit in case of exception", async function(done) {
         const beforeState = collectValues(rootStore.state);
         try {
             await rootStore.incAndFail();
@@ -177,7 +177,7 @@ describe("ServiceStore", function() {
         done();
     });
 
-    xit("Does not allow second commit", async function(done) {
+    it("Does not allow second commit", async function(done) {
         let tranScope;
         await authStore.loginAndRunCallback("userName", function() {
             tranScope = TransactionScope.current();
@@ -190,7 +190,7 @@ describe("ServiceStore", function() {
         done();
     });
 
-    xit("subscribeTo fires when specific property has changed", async function (done) {
+    it("subscribeTo fires when specific property has changed", async function (done) {
         let fired = false;
         authStore.store.subscribeTo("userName", (newState, oldState)=> {
             fired = true;
@@ -206,7 +206,7 @@ describe("ServiceStore", function() {
         done();
     });
 
-    xit("subscribeTo does not fire on specific property that was not changed", async function (done) {
+    it("subscribeTo does not fire on specific property that was not changed", async function (done) {
         let fired;
         authStore.store.subscribeTo("userName", (newState, oldState)=> {
             fired = true;
